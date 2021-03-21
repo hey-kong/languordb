@@ -7,30 +7,30 @@ import (
 	"LanguorDB/internalkey"
 )
 
-type BlockBuilder struct {
+type Builder struct {
 	buf     bytes.Buffer
 	counter uint32
 }
 
-func (blockBuilder *BlockBuilder) Reset() {
+func (blockBuilder *Builder) Reset() {
 	blockBuilder.counter = 0
 	blockBuilder.buf.Reset()
 }
 
-func (blockBuilder *BlockBuilder) Add(item *internalkey.InternalKey) error {
+func (blockBuilder *Builder) Add(item *internalkey.InternalKey) error {
 	blockBuilder.counter++
 	return item.EncodeTo(&blockBuilder.buf)
 }
 
-func (blockBuilder *BlockBuilder) Finish() []byte {
+func (blockBuilder *Builder) Finish() []byte {
 	binary.Write(&blockBuilder.buf, binary.LittleEndian, blockBuilder.counter)
 	return blockBuilder.buf.Bytes()
 }
 
-func (blockBuilder *BlockBuilder) CurrentSizeEstimate() int {
+func (blockBuilder *Builder) CurrentSizeEstimate() int {
 	return blockBuilder.buf.Len()
 }
 
-func (blockBuilder *BlockBuilder) Empty() bool {
+func (blockBuilder *Builder) Empty() bool {
 	return blockBuilder.buf.Len() == 0
 }

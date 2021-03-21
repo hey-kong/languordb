@@ -7,7 +7,7 @@ import (
 	"LanguorDB/internalkey"
 )
 
-func Test_MemTable(t *testing.T) {
+func TestMemTable(t *testing.T) {
 	memTable := New()
 	memTable.Add(1234567, internalkey.TypeValue, []byte("aadsa34a"), []byte("bb23b3423"))
 	value, _ := memTable.Get([]byte("aadsa34a"))

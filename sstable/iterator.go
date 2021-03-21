@@ -6,13 +6,13 @@ import (
 )
 
 type Iterator struct {
-	table           *SsTable
+	table           *SSTable
 	dataBlockHandle BlockHandle
 	dataIter        *block.Iterator
 	indexIter       *block.Iterator
 }
 
-// Returns true iff the iterator is positioned at a valid node.
+// Returns true if the iterator is positioned at a valid node.
 func (it *Iterator) Valid() bool {
 	return it.dataIter != nil && it.dataIter.Valid()
 }
@@ -47,15 +47,9 @@ func (it *Iterator) Prev() {
 func (it *Iterator) Seek(target []byte) {
 	// Index Block的block_data字段中，每一条记录的key都满足：
 	// 大于等于Data Block的所有key，并且小于后面所有Data Block的key
-	// 因为Seek是查找key>=target的第一条记录，所以当index_iter_找到时，
-	// 该index_inter_对应的data_iter_所管理的Data Block中所有记录的
-	// key都小于等于target，如果需要在下一个Data Block中seek，而下一个Data Block
-	// 中的第一条记录就满足key>=target
-
 	it.indexIter.Seek(target)
 	it.initDataBlock()
 	if it.dataIter != nil {
-
 		it.dataIter.Seek(target)
 	}
 	it.skipEmptyDataBlocksForward()

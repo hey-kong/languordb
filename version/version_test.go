@@ -8,7 +8,7 @@ import (
 	"LanguorDB/memtable"
 )
 
-func Test_Version_Get(t *testing.T) {
+func TestVersionGet(t *testing.T) {
 	v := New("D:\\")
 	var f FileMetaData
 	f.number = 123
@@ -20,7 +20,7 @@ func Test_Version_Get(t *testing.T) {
 	fmt.Println(err, value)
 }
 
-func Test_Version_Load(t *testing.T) {
+func TestVersionLoad(t *testing.T) {
 	v := New("D:\\LanguorDB")
 	memTable := memtable.New()
 	memTable.Add(1234567, internalkey.TypeValue, []byte("aadsa34a"), []byte("bb23b3423"))

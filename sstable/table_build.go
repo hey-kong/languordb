@@ -8,15 +8,15 @@ import (
 )
 
 const (
-	MAX_BLOCK_SIZE = 4 * 1024
+	MaxBlockSize = 4 * 1024
 )
 
 type TableBuilder struct {
 	file               *os.File
 	offset             uint32
 	numEntries         int32
-	dataBlockBuilder   block.BlockBuilder
-	indexBlockBuilder  block.BlockBuilder
+	dataBlockBuilder   block.Builder
+	indexBlockBuilder  block.Builder
 	pendingIndexEntry  bool
 	pendingIndexHandle IndexBlockHandle
 	status             error
@@ -51,10 +51,11 @@ func (builder *TableBuilder) Add(internalKey *internalkey.InternalKey) {
 
 	builder.numEntries++
 	builder.dataBlockBuilder.Add(internalKey)
-	if builder.dataBlockBuilder.CurrentSizeEstimate() > MAX_BLOCK_SIZE {
+	if builder.dataBlockBuilder.CurrentSizeEstimate() > MaxBlockSize {
 		builder.flush()
 	}
 }
+
 func (builder *TableBuilder) flush() {
 	if builder.dataBlockBuilder.Empty() {
 		return
@@ -84,7 +85,7 @@ func (builder *TableBuilder) Finish() error {
 	return nil
 }
 
-func (builder *TableBuilder) writeblock(blockBuilder *block.BlockBuilder) BlockHandle {
+func (builder *TableBuilder) writeblock(blockBuilder *block.Builder) BlockHandle {
 	content := blockBuilder.Finish()
 	// todo : compress, crc
 	var blockHandle BlockHandle

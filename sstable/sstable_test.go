@@ -7,26 +7,36 @@ import (
 	"LanguorDB/internalkey"
 )
 
-func Test_SsTable(t *testing.T) {
-	builder := NewTableBuilder("D:\\000123.ldb")
-	item := internalkey.NewInternalKey(1, internalkey.TypeValue, []byte("123"), []byte("1234"))
+func TestSSTable(t *testing.T) {
+	builder := NewTableBuilder("D:\\LanguorDB\\test_sstable.ldb")
+	item := internalkey.NewInternalKey(1, internalkey.TypeValue, []byte("111"), []byte("aaa"))
 	builder.Add(item)
-	item = internalkey.NewInternalKey(2, internalkey.TypeValue, []byte("124"), []byte("1245"))
+	item = internalkey.NewInternalKey(2, internalkey.TypeValue, []byte("222"), []byte("bbb"))
 	builder.Add(item)
-	item = internalkey.NewInternalKey(3, internalkey.TypeValue, []byte("125"), []byte("0245"))
+	item = internalkey.NewInternalKey(3, internalkey.TypeValue, []byte("333"), []byte("ccc"))
 	builder.Add(item)
 	builder.Finish()
 
-	table, err := Open("D:\\000123.ldb")
-	fmt.Println(err)
-	if err == nil {
+	table, err := Open("D:\\LanguorDB\\test_sstable.ldb")
+	if err != nil {
+		fmt.Println(err)
+	} else {
 		fmt.Println(table.index)
 		fmt.Println(table.footer)
 	}
+
 	it := table.NewIterator()
-	it.Seek([]byte("1244"))
+	it.Seek([]byte("222"))
 	if it.Valid() {
-		if string(it.InternalKey().UserKey) != "125" {
+		if string(it.InternalKey().UserValue) != "bbb" {
+			t.Fail()
+		}
+	} else {
+		t.Fail()
+	}
+	it.Seek([]byte("2222"))
+	if it.Valid() {
+		if string(it.InternalKey().UserKey) != "333" {
 			t.Fail()
 		}
 	} else {

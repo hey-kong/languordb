@@ -5,7 +5,7 @@ import (
 	"os"
 	"sort"
 
-	"LanguorDB"
+	"LanguorDB/config"
 	"LanguorDB/errors"
 	"LanguorDB/internalkey"
 	"LanguorDB/utils"
@@ -23,10 +23,10 @@ type Version struct {
 	tableCache     *TableCache
 	nextFileNumber uint64
 	seq            uint64
-	files          [leveldb.NumLevels][]*FileMetaData
+	files          [config.NumLevels][]*FileMetaData
 	// Per-level internalkey at which the next compaction at that level should start.
 	// Either an empty string, or a valid InternalKey.
-	compactPointer [leveldb.NumLevels]*internalkey.InternalKey
+	compactPointer [config.NumLevels]*internalkey.InternalKey
 }
 
 func New(dbName string) *Version {
@@ -58,8 +58,9 @@ func (v *Version) Save() (uint64, error) {
 	defer file.Close()
 	return tmp, v.EncodeTo(file)
 }
+
 func (v *Version) Log() {
-	for level := 0; level < leveldb.NumLevels; level++ {
+	for level := 0; level < config.NumLevels; level++ {
 		for i := 0; i < len(v.files[level]); i++ {
 			log.Printf("version[%d]: %d", level, v.files[level][i].number)
 		}
@@ -71,7 +72,7 @@ func (v *Version) Copy() *Version {
 	c.tableCache = v.tableCache
 	c.nextFileNumber = v.nextFileNumber
 	c.seq = v.seq
-	for level := 0; level < leveldb.NumLevels; level++ {
+	for level := 0; level < config.NumLevels; level++ {
 		c.files[level] = make([]*FileMetaData, len(v.files[level]))
 		copy(c.files[level], v.files[level])
 	}
@@ -93,7 +94,7 @@ func (v *Version) Get(key []byte) ([]byte, error) {
 	// We can search level-by-level since entries never hop across
 	// levels.  Therefore we are guaranteed that if we find data
 	// in an smaller level, later levels are irrelevant.
-	for level := 0; level < leveldb.NumLevels; level++ {
+	for level := 0; level < config.NumLevels; level++ {
 		numFiles := len(v.files[level])
 		if numFiles == 0 {
 			continue

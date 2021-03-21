@@ -5,7 +5,7 @@ import (
 	"io"
 	"log"
 
-	"LanguorDB"
+	"LanguorDB/config"
 	"LanguorDB/internalkey"
 	"LanguorDB/memtable"
 	"LanguorDB/sstable"
@@ -54,7 +54,7 @@ func (meta *FileMetaData) DecodeFrom(r io.Reader) error {
 func (v *Version) EncodeTo(w io.Writer) error {
 	binary.Write(w, binary.LittleEndian, v.nextFileNumber)
 	binary.Write(w, binary.LittleEndian, v.seq)
-	for level := 0; level < leveldb.NumLevels; level++ {
+	for level := 0; level < config.NumLevels; level++ {
 		numFiles := len(v.files[level])
 		binary.Write(w, binary.LittleEndian, int32(numFiles))
 
@@ -69,7 +69,7 @@ func (v *Version) DecodeFrom(r io.Reader) error {
 	binary.Read(r, binary.LittleEndian, &v.nextFileNumber)
 	binary.Read(r, binary.LittleEndian, &v.seq)
 	var numFiles int32
-	for level := 0; level < leveldb.NumLevels; level++ {
+	for level := 0; level < config.NumLevels; level++ {
 		binary.Read(r, binary.LittleEndian, &numFiles)
 		v.files[level] = make([]*FileMetaData, numFiles)
 		for i := 0; i < int(numFiles); i++ {
@@ -131,10 +131,10 @@ func (v *Version) WriteLevel0Table(imm *memtable.MemTable) {
 		meta.largest.UserValue = nil
 	}
 
-	// 挑选合适的level
+	// select appropriate level
 	level := 0
 	if !v.overlapInLevel(0, meta.smallest.UserKey, meta.largest.UserKey) {
-		for ; level < leveldb.MaxMemCompactLevel; level++ {
+		for ; level < config.MaxMemCompactLevel; level++ {
 			if v.overlapInLevel(level+1, meta.smallest.UserKey, meta.largest.UserKey) {
 				break
 			}
@@ -185,7 +185,7 @@ func (v *Version) DoCompactionWork() bool {
 		return true
 	}
 	var list []*FileMetaData
-	var current_key *internalkey.InternalKey
+	var currentKey *internalkey.InternalKey
 	iter := v.makeInputIterator(c)
 	for iter.SeekToFirst(); iter.Valid(); iter.Next() {
 		var meta FileMetaData
@@ -196,19 +196,19 @@ func (v *Version) DoCompactionWork() bool {
 
 		meta.smallest = iter.InternalKey()
 		for ; iter.Valid(); iter.Next() {
-			if current_key != nil {
+			if currentKey != nil {
 				// 去除重复的记录
-				ret := internalkey.UserKeyComparator(iter.InternalKey().UserKey, current_key.UserKey)
+				ret := internalkey.UserKeyComparator(iter.InternalKey().UserKey, currentKey.UserKey)
 				if ret == 0 {
 					continue
 				} else if ret < 0 {
-					log.Fatalf("%s < %s", string(iter.InternalKey().UserKey), string(current_key.UserKey))
+					log.Fatalf("%s < %s", string(iter.InternalKey().UserKey), string(currentKey.UserKey))
 				}
-				current_key = iter.InternalKey()
+				currentKey = iter.InternalKey()
 			}
 			meta.largest = iter.InternalKey()
 			builder.Add(iter.InternalKey())
-			if builder.FileSize() > leveldb.MaxFileSize {
+			if builder.FileSize() > config.MaxFileSize {
 				break
 			}
 		}
@@ -307,9 +307,9 @@ func (v *Version) pickCompactionLevel() int {
 	compactionLevel := -1
 	bestScore := 1.0
 	score := 0.0
-	for level := 0; level < leveldb.NumLevels-1; level++ {
+	for level := 0; level < config.NumLevels-1; level++ {
 		if level == 0 {
-			score = float64(len(v.files[0])) / float64(leveldb.L0_CompactionTrigger)
+			score = float64(len(v.files[0])) / float64(config.L0_CompactionTrigger)
 		} else {
 			score = float64(totalFileSize(v.files[level])) / maxBytesForLevel(level)
 		}

@@ -9,7 +9,6 @@ import (
 
 var r = rand.New(rand.NewSource(time.Now().UnixNano()))
 
-//生成随机字符串
 func GetRandomString(lenth int) []byte {
 	str := "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	bytes := []byte(str)
@@ -21,7 +20,7 @@ func GetRandomString(lenth int) []byte {
 	return result
 }
 
-func Test_Db(t *testing.T) {
+func TestDbImpl(t *testing.T) {
 	db := Open("D:\\LanguorDB")
 	db.Put([]byte("123"), []byte("456"))
 
@@ -38,7 +37,7 @@ func Test_Db(t *testing.T) {
 	db.Close()
 }
 
-func Test_Db2(t *testing.T) {
+func TestDbLoad(t *testing.T) {
 	db := Open("D:\\LanguorDB")
 	db.Put([]byte("123"), []byte("456"))
 

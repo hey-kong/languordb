@@ -12,7 +12,7 @@ func IntComparator(a, b interface{}) int {
 	return aInt - bInt
 }
 
-func Test_Insert(t *testing.T) {
+func TestInsert(t *testing.T) {
 	skiplist := New(IntComparator)
 	for i := 0; i < 10; i++ {
 		skiplist.Insert(rand.Int() % 10)

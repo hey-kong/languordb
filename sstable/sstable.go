@@ -9,14 +9,14 @@ import (
 	"LanguorDB/sstable/block"
 )
 
-type SsTable struct {
+type SSTable struct {
 	index  *block.Block
 	footer Footer
 	file   *os.File
 }
 
-func Open(fileName string) (*SsTable, error) {
-	var table SsTable
+func Open(fileName string) (*SSTable, error) {
+	var table SSTable
 	var err error
 	table.file, err = os.Open(fileName)
 	if err != nil {
@@ -42,14 +42,14 @@ func Open(fileName string) (*SsTable, error) {
 	return &table, nil
 }
 
-func (table *SsTable) NewIterator() *Iterator {
+func (table *SSTable) NewIterator() *Iterator {
 	var it Iterator
 	it.table = table
 	it.indexIter = table.index.NewIterator()
 	return &it
 }
 
-func (table *SsTable) Get(key []byte) ([]byte, error) {
+func (table *SSTable) Get(key []byte) ([]byte, error) {
 	it := table.NewIterator()
 	it.Seek(key)
 	if it.Valid() {
@@ -66,7 +66,7 @@ func (table *SsTable) Get(key []byte) ([]byte, error) {
 	return nil, errors.ErrNotFound
 }
 
-func (table *SsTable) readBlock(blockHandle BlockHandle) *block.Block {
+func (table *SSTable) readBlock(blockHandle BlockHandle) *block.Block {
 	p := make([]byte, blockHandle.Size)
 	n, err := table.file.ReadAt(p, int64(blockHandle.Offset))
 	if err != nil || uint32(n) != blockHandle.Size {

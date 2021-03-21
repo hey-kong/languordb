@@ -4,7 +4,7 @@ import (
 	"sync"
 	"time"
 
-	"LanguorDB"
+	"LanguorDB/config"
 	"LanguorDB/errors"
 	"LanguorDB/internalkey"
 	"LanguorDB/memtable"
@@ -99,11 +99,11 @@ func (db *Db) makeRoomForWrite() (uint64, error) {
 	defer db.mu.Unlock()
 
 	for true {
-		if db.current.NumLevelFiles(0) >= leveldb.L0_SlowdownWritesTrigger {
+		if db.current.NumLevelFiles(0) >= config.L0_SlowdownWritesTrigger {
 			db.mu.Unlock()
 			time.Sleep(time.Duration(1000) * time.Microsecond)
 			db.mu.Lock()
-		} else if db.mem.ApproximateMemoryUsage() <= leveldb.Write_buffer_size {
+		} else if db.mem.ApproximateMemoryUsage() <= config.WriteBufferSize {
 			return db.current.NextSeq(), nil
 		} else if db.imm != nil {
 			//  Current memtable full; waiting
