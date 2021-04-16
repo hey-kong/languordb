@@ -11,7 +11,7 @@ type LevelDb interface {
 }
 
 type Iterator interface {
-	// Returns true iff the iterator is positioned at a valid node.
+	// Returns true if the iterator is positioned at a valid node.
 	Valid() bool
 
 	// Returns the internalkey at the current position.
@@ -36,11 +36,11 @@ type Iterator interface {
 	Seek(target []byte)
 
 	// Position at the first entry in list.
-	// Final state of iterator is Valid() iff list is not empty.
+	// Final state of iterator is Valid() if the list is not empty.
 	SeekToFirst()
 
 	// Position at the last entry in list.
-	// Final state of iterator is Valid() iff list is not empty.
+	// Final state of iterator is Valid() if the list is not empty.
 	SeekToLast()
 }
 

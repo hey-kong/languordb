@@ -1,4 +1,4 @@
-package version
+package languorDB
 
 import (
 	"log"
@@ -27,6 +27,9 @@ type Version struct {
 	// Per-level internalkey at which the next compaction at that level should start.
 	// Either an empty string, or a valid InternalKey.
 	compactPointer [config.NumLevels]*internalkey.InternalKey
+
+	// Coarse-grain compaction index.
+	index [config.NumLevels]*Index
 }
 
 func New(dbName string) *Version {

@@ -46,7 +46,7 @@ func (it *Iterator) Seek(target interface{}) {
 }
 
 // Position at the first entry in list.
-// Final state of iterator is Valid() iff list is not empty.
+// Final state of iterator is Valid() if the list is not empty.
 func (it *Iterator) SeekToFirst() {
 	it.list.mu.RLock()
 	defer it.list.mu.RUnlock()
@@ -55,7 +55,7 @@ func (it *Iterator) SeekToFirst() {
 }
 
 // Position at the last entry in list.
-// Final state of iterator is Valid() iff list is not empty.
+// Final state of iterator is Valid() if the list is not empty.
 func (it *Iterator) SeekToLast() {
 	it.list.mu.RLock()
 	defer it.list.mu.RUnlock()

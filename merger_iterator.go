@@ -1,4 +1,4 @@
-package version
+package languorDB
 
 import (
 	"LanguorDB/internalkey"
@@ -16,7 +16,7 @@ func NewMergingIterator(list []*sstable.Iterator) *MergingIterator {
 	return &iter
 }
 
-// Returns true iff the iterator is positioned at a valid node.
+// Returns true if the iterator is positioned at a valid node.
 func (it *MergingIterator) Valid() bool {
 	return it.current != nil && it.current.Valid()
 }
@@ -35,7 +35,7 @@ func (it *MergingIterator) Next() {
 }
 
 // Position at the first entry in list.
-// Final state of iterator is Valid() iff list is not empty.
+// Final state of iterator is Valid() if the list is not empty.
 func (it *MergingIterator) SeekToFirst() {
 	for i := 0; i < len(it.list); i++ {
 		it.list[i].SeekToFirst()

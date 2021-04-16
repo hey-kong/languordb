@@ -1,4 +1,4 @@
-package version
+package languorDB
 
 import (
 	"encoding/binary"
@@ -318,7 +318,6 @@ func (v *Version) pickCompactionLevel() int {
 			bestScore = score
 			compactionLevel = level
 		}
-
 	}
 	return compactionLevel
 }
@@ -330,6 +329,7 @@ func totalFileSize(files []*FileMetaData) uint64 {
 	}
 	return sum
 }
+
 func maxBytesForLevel(level int) float64 {
 	// Note: the result for level zero is not really used since we set
 	// the level-0 compaction threshold based on number of files.

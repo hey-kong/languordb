@@ -9,7 +9,7 @@ type Iterator struct {
 	index int
 }
 
-// Returns true iff the iterator is positioned at a valid node.
+// Returns true if the iterator is positioned at a valid node.
 func (it *Iterator) Valid() bool {
 	return it.index >= 0 && it.index < len(it.block.items)
 }
@@ -53,13 +53,13 @@ func (it *Iterator) Seek(target interface{}) {
 }
 
 // Position at the first entry in list.
-// Final state of iterator is Valid() iff list is not empty.
+// Final state of iterator is Valid() if the list is not empty.
 func (it *Iterator) SeekToFirst() {
 	it.index = 0
 }
 
 // Position at the last entry in list.
-// Final state of iterator is Valid() iff list is not empty.
+// Final state of iterator is Valid() if the list is not empty.
 func (it *Iterator) SeekToLast() {
 	if len(it.block.items) > 0 {
 		it.index = len(it.block.items) - 1

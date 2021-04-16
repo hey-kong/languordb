@@ -9,4 +9,5 @@ const (
 	NumNonTableCacheFiles    = 10
 	MaxMemCompactLevel       = 2
 	MaxFileSize              = 2 << 20
+	MaxLevelShards           = 4
 )
