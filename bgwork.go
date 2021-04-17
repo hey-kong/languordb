@@ -35,7 +35,7 @@ func (db *Db) backgroundCompaction() {
 		version.WriteCgLevel0Table(imm)
 	}
 	// major compaction
-	for version.DoCompactionWork() {
+	for version.DoCgCompactionWork() {
 		version.Log()
 	}
 	descriptorNumber, _ := version.Save()

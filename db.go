@@ -80,7 +80,7 @@ func (db *Db) Get(key []byte) ([]byte, error) {
 		}
 	}
 
-	value, err = current.Get(key)
+	value, err = current.ParallelGet(key)
 	return value, err
 }
 

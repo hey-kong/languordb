@@ -3,8 +3,12 @@ package languorDB
 import (
 	"encoding/binary"
 	"io"
+	"sort"
+	"sync"
 
+	"LanguorDB/config"
 	"LanguorDB/errors"
+	"LanguorDB/internalkey"
 )
 
 type Index struct {
@@ -42,6 +46,58 @@ func (index *Index) DecodeFrom(r io.Reader) error {
 	return nil
 }
 
-func (v *Version) MultiGet(key []byte) ([]byte, error) {
+func (v *Version) ParallelGet(key []byte) ([]byte, error) {
+	var tmp []*FileMetaData
+	var files []*FileMetaData
+	// We can search level-by-level since entries never hop across
+	// levels.  Therefore we are guaranteed that if we find data
+	// in an smaller level, later levels are irrelevant.
+	for level := 0; level < config.NumLevels; level++ {
+		numShards := len(v.index[level].shards)
+		if numShards == 0 {
+			continue
+		}
+
+		for i := 0; i < numShards; i++ {
+			for j := range v.index[level].shards[i].pages {
+				f := v.index[level].shards[i].pages[j]
+				if internalkey.UserKeyComparator(key, f.smallest.UserKey) >= 0 && internalkey.UserKeyComparator(key, f.largest.UserKey) <= 0 {
+					tmp = append(tmp, f)
+					break
+				}
+			}
+		}
+		if len(tmp) == 0 {
+			continue
+		}
+		sort.Slice(tmp, func(i, j int) bool { return tmp[i].number > tmp[j].number })
+		numFiles := len(tmp)
+		files = tmp
+
+		var wg sync.WaitGroup
+		var mu sync.Mutex
+		var res []byte = nil
+		var resErr error = errors.ErrNotFound
+		var resFileNum uint64 = 0
+		for i := 0; i < numFiles; i++ {
+			f := files[i]
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				value, err := v.tableCache.Get(f.number, key)
+				mu.Lock()
+				if err != errors.ErrNotFound && f.number >= resFileNum {
+					res = value
+					resErr = err
+					resFileNum = f.number
+				}
+				mu.Unlock()
+			}()
+		}
+		wg.Wait()
+		if resErr != errors.ErrNotFound {
+			return res, resErr
+		}
+	}
 	return nil, errors.ErrNotFound
 }

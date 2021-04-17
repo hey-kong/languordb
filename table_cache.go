@@ -35,7 +35,6 @@ func (tableCache *TableCache) Get(fileNum uint64, key []byte) ([]byte, error) {
 	if table != nil {
 		return table.Get(key)
 	}
-
 	return nil, err
 }
 

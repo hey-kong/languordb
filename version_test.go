@@ -9,7 +9,7 @@ import (
 )
 
 func TestVersionGet(t *testing.T) {
-	v := New("D:\\")
+	v := New("D:\\LanguorDB")
 	var f FileMetaData
 	f.number = 123
 	f.smallest = internalkey.NewInternalKey(1, internalkey.TypeValue, []byte("123"), nil)
@@ -30,6 +30,27 @@ func TestVersionLoad(t *testing.T) {
 
 	v2, _ := Load("D:\\LanguorDB", n)
 	fmt.Println(v2)
+
 	value, err := v2.Get([]byte("aadsa34a"))
 	fmt.Println(err, value)
+}
+
+func TestVersionParallelGet(t *testing.T) {
+	v := New("D:\\LanguorDB")
+	memTable := memtable.New()
+	memTable.Add(1234567, internalkey.TypeValue, []byte("aadsa34a"), []byte("old-bb23b3423"))
+	v.WriteCgLevel0Table(memTable)
+	memTable = memtable.New()
+	memTable.Add(1234567, internalkey.TypeValue, []byte("aadsa34a"), []byte("new-bb23b3423"))
+	v.WriteCgLevel0Table(memTable)
+	n, _ := v.Save()
+	fmt.Println(v)
+
+	v2, _ := Load("D:\\LanguorDB", n)
+	fmt.Println(v2)
+
+	value, err := v2.ParallelGet([]byte("aadsa34a"))
+	if err != nil || string(value) != "new-bb23b3423" {
+		t.Fail()
+	}
 }
