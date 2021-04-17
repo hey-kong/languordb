@@ -1,4 +1,4 @@
-package db
+package languorDB
 
 import (
 	"sync"
@@ -8,7 +8,6 @@ import (
 	"LanguorDB/errors"
 	"LanguorDB/internalkey"
 	"LanguorDB/memtable"
-	"LanguorDB/version"
 )
 
 type Db struct {
@@ -17,11 +16,11 @@ type Db struct {
 	cond                  *sync.Cond
 	mem                   *memtable.MemTable
 	imm                   *memtable.MemTable
-	current               *version.Version
+	current               *Version
 	bgCompactionScheduled bool
 }
 
-func Open(dbName string) *Db {
+func open(dbName string) *Db {
 	var db Db
 	db.name = dbName
 	db.mem = memtable.New()
@@ -30,19 +29,19 @@ func Open(dbName string) *Db {
 	db.cond = sync.NewCond(&db.mu)
 	num := db.ReadCurrentFile()
 	if num > 0 {
-		v, err := version.Load(dbName, num)
+		v, err := Load(dbName, num)
 		if err != nil {
 			return nil
 		}
 		db.current = v
 	} else {
-		db.current = version.New(dbName)
+		db.current = New(dbName)
 	}
 
 	return &db
 }
 
-func (db *Db) Close() {
+func (db *Db) close() {
 	db.mu.Lock()
 	for db.bgCompactionScheduled {
 		db.cond.Wait()

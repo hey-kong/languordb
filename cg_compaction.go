@@ -1,11 +1,12 @@
 package languorDB
 
 import (
-	"LanguorDB/internalkey"
 	"log"
 
 	"LanguorDB/config"
+	"LanguorDB/memtable"
 	"LanguorDB/sstable"
+	"LanguorDB/utils"
 )
 
 type CgCompaction struct {
@@ -22,6 +23,38 @@ func (c *CgCompaction) Log() {
 	}
 }
 
+func (v *Version) WriteCgLevel0Table(imm *memtable.MemTable) {
+	var meta FileMetaData
+	meta.allowSeeks = 1 << 30
+	meta.number = v.nextFileNumber
+	v.nextFileNumber++
+	builder := sstable.NewTableBuilder((utils.TableFileName(v.tableCache.dbName, meta.number)))
+	iter := imm.NewIterator()
+	iter.SeekToFirst()
+	if iter.Valid() {
+		meta.smallest = iter.InternalKey()
+		for ; iter.Valid(); iter.Next() {
+			meta.largest = iter.InternalKey()
+			builder.Add(iter.InternalKey())
+		}
+		builder.Finish()
+		meta.fileSize = uint64(builder.FileSize())
+		meta.smallest.UserValue = nil
+		meta.largest.UserValue = nil
+	}
+
+	level := 0
+	v.addFile(level, &meta)
+	shard := &Shard{
+		smallest: meta.smallest,
+		largest:  meta.largest,
+		fileSize: meta.fileSize,
+		pages:    []*FileMetaData{&meta},
+	}
+	v.index[level].fileSize += shard.fileSize
+	v.index[level].shards = append(v.index[level].shards, shard)
+}
+
 func (v *Version) DoCgCompactionWork() bool {
 	c := v.pickCgCompaction()
 	if c == nil {
@@ -30,29 +63,21 @@ func (v *Version) DoCgCompactionWork() bool {
 	log.Printf("DoCgCompactionWork begin\n")
 	defer log.Printf("DoCgCompactionWork end\n")
 	c.Log()
-	s := v.MergeShards(c.inputs)
+	shard := v.MergeShards(c.inputs)
 	// Update Level-i index
 	for i := range c.inputs {
 		for j := range c.inputs[i].pages {
 			v.deleteFile(c.level, c.inputs[i].pages[j])
 		}
 	}
-	v.index[c.level].smallest = nil
-	v.index[c.level].largest = nil
 	v.index[c.level].fileSize = 0
 	v.index[c.level].shards = v.index[c.level].shards[:0]
 	// Update Level-i+1 index
-	for i := 0; i < len(s.pages); i++ {
-		v.addFile(c.level+1, s.pages[i])
+	for i := 0; i < len(shard.pages); i++ {
+		v.addFile(c.level+1, shard.pages[i])
 	}
-	if internalkey.InternalKeyComparator(v.index[c.level+1].smallest, s.smallest) > 0 {
-		v.index[c.level+1].smallest = s.smallest
-	}
-	if internalkey.InternalKeyComparator(v.index[c.level+1].largest, s.largest) < 0 {
-		v.index[c.level+1].largest = s.largest
-	}
-	v.index[c.level+1].fileSize += s.fileSize
-	v.index[c.level+1].shards = append(v.index[c.level+1].shards, s)
+	v.index[c.level+1].fileSize += shard.fileSize
+	v.index[c.level+1].shards = append(v.index[c.level+1].shards, shard)
 	return true
 }
 

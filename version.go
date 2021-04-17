@@ -1,6 +1,8 @@
 package languorDB
 
 import (
+	"encoding/binary"
+	"io"
 	"log"
 	"os"
 	"sort"
@@ -37,6 +39,26 @@ func (arr Metas) Swap(i, j int) {
 	arr[i], arr[j] = arr[j], arr[i]
 }
 
+func (meta *FileMetaData) EncodeTo(w io.Writer) error {
+	binary.Write(w, binary.LittleEndian, meta.allowSeeks)
+	binary.Write(w, binary.LittleEndian, meta.fileSize)
+	binary.Write(w, binary.LittleEndian, meta.number)
+	meta.smallest.EncodeTo(w)
+	meta.largest.EncodeTo(w)
+	return nil
+}
+
+func (meta *FileMetaData) DecodeFrom(r io.Reader) error {
+	binary.Read(r, binary.LittleEndian, &meta.allowSeeks)
+	binary.Read(r, binary.LittleEndian, &meta.fileSize)
+	binary.Read(r, binary.LittleEndian, &meta.number)
+	meta.smallest = new(internalkey.InternalKey)
+	meta.smallest.DecodeFrom(r)
+	meta.largest = new(internalkey.InternalKey)
+	meta.largest.DecodeFrom(r)
+	return nil
+}
+
 type Version struct {
 	tableCache     *TableCache
 	nextFileNumber uint64
@@ -54,7 +76,41 @@ func New(dbName string) *Version {
 	var v Version
 	v.tableCache = NewTableCache(dbName)
 	v.nextFileNumber = 1
+	for level := 0; level < config.NumLevels; level++ {
+		v.index[level] = NewIndex()
+	}
 	return &v
+}
+
+func (v *Version) EncodeTo(w io.Writer) error {
+	binary.Write(w, binary.LittleEndian, v.nextFileNumber)
+	binary.Write(w, binary.LittleEndian, v.seq)
+	for level := 0; level < config.NumLevels; level++ {
+		numFiles := len(v.files[level])
+		binary.Write(w, binary.LittleEndian, int32(numFiles))
+		for i := 0; i < numFiles; i++ {
+			v.files[level][i].EncodeTo(w)
+		}
+		v.index[level].EncodeTo(w)
+	}
+	return nil
+}
+
+func (v *Version) DecodeFrom(r io.Reader) error {
+	binary.Read(r, binary.LittleEndian, &v.nextFileNumber)
+	binary.Read(r, binary.LittleEndian, &v.seq)
+	var numFiles int32
+	for level := 0; level < config.NumLevels; level++ {
+		binary.Read(r, binary.LittleEndian, &numFiles)
+		v.files[level] = make([]*FileMetaData, numFiles)
+		for i := 0; i < int(numFiles); i++ {
+			var meta FileMetaData
+			meta.DecodeFrom(r)
+			v.files[level][i] = &meta
+		}
+		v.index[level].DecodeFrom(r)
+	}
+	return nil
 }
 
 func Load(dbName string, number uint64) (*Version, error) {
@@ -87,18 +143,24 @@ func (v *Version) Log() {
 		}
 	}
 }
+
 func (v *Version) Copy() *Version {
 	var c Version
-
 	c.tableCache = v.tableCache
 	c.nextFileNumber = v.nextFileNumber
 	c.seq = v.seq
 	for level := 0; level < config.NumLevels; level++ {
 		c.files[level] = make([]*FileMetaData, len(v.files[level]))
 		copy(c.files[level], v.files[level])
+
+		c.index[level] = NewIndex()
+		c.index[level].fileSize = v.index[level].fileSize
+		c.index[level].shards = make([]*Shard, len(c.index[level].shards))
+		copy(c.index[level].shards, c.index[level].shards)
 	}
 	return &c
 }
+
 func (v *Version) NextSeq() uint64 {
 	v.seq++
 	return v.seq

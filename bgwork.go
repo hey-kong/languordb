@@ -1,4 +1,4 @@
-package db
+package languorDB
 
 import (
 	"fmt"
@@ -32,7 +32,7 @@ func (db *Db) backgroundCompaction() {
 
 	// minor compaction
 	if imm != nil {
-		version.WriteLevel0Table(imm)
+		version.WriteCgLevel0Table(imm)
 	}
 	// major compaction
 	for version.DoCompactionWork() {

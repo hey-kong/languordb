@@ -24,7 +24,7 @@ func TestVersionLoad(t *testing.T) {
 	v := New("D:\\LanguorDB")
 	memTable := memtable.New()
 	memTable.Add(1234567, internalkey.TypeValue, []byte("aadsa34a"), []byte("bb23b3423"))
-	v.WriteLevel0Table(memTable)
+	v.WriteCgLevel0Table(memTable)
 	n, _ := v.Save()
 	fmt.Println(v)
 

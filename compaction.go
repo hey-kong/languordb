@@ -1,8 +1,6 @@
 package languorDB
 
 import (
-	"encoding/binary"
-	"io"
 	"log"
 
 	"LanguorDB/config"
@@ -29,56 +27,6 @@ func (c *Compaction) Log() {
 	for i := 0; i < len(c.inputs[1]); i++ {
 		log.Printf("inputs[1]: %d", c.inputs[1][i].number)
 	}
-}
-
-func (meta *FileMetaData) EncodeTo(w io.Writer) error {
-	binary.Write(w, binary.LittleEndian, meta.allowSeeks)
-	binary.Write(w, binary.LittleEndian, meta.fileSize)
-	binary.Write(w, binary.LittleEndian, meta.number)
-	meta.smallest.EncodeTo(w)
-	meta.largest.EncodeTo(w)
-	return nil
-}
-
-func (meta *FileMetaData) DecodeFrom(r io.Reader) error {
-	binary.Read(r, binary.LittleEndian, &meta.allowSeeks)
-	binary.Read(r, binary.LittleEndian, &meta.fileSize)
-	binary.Read(r, binary.LittleEndian, &meta.number)
-	meta.smallest = new(internalkey.InternalKey)
-	meta.smallest.DecodeFrom(r)
-	meta.largest = new(internalkey.InternalKey)
-	meta.largest.DecodeFrom(r)
-	return nil
-}
-
-func (v *Version) EncodeTo(w io.Writer) error {
-	binary.Write(w, binary.LittleEndian, v.nextFileNumber)
-	binary.Write(w, binary.LittleEndian, v.seq)
-	for level := 0; level < config.NumLevels; level++ {
-		numFiles := len(v.files[level])
-		binary.Write(w, binary.LittleEndian, int32(numFiles))
-
-		for i := 0; i < numFiles; i++ {
-			v.files[level][i].EncodeTo(w)
-		}
-	}
-	return nil
-}
-
-func (v *Version) DecodeFrom(r io.Reader) error {
-	binary.Read(r, binary.LittleEndian, &v.nextFileNumber)
-	binary.Read(r, binary.LittleEndian, &v.seq)
-	var numFiles int32
-	for level := 0; level < config.NumLevels; level++ {
-		binary.Read(r, binary.LittleEndian, &numFiles)
-		v.files[level] = make([]*FileMetaData, numFiles)
-		for i := 0; i < int(numFiles); i++ {
-			var meta FileMetaData
-			meta.DecodeFrom(r)
-			v.files[level][i] = &meta
-		}
-	}
-	return nil
 }
 
 func (v *Version) deleteFile(level int, meta *FileMetaData) {

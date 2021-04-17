@@ -1,4 +1,4 @@
-package db
+package languorDB
 
 import (
 	"fmt"
@@ -9,19 +9,19 @@ import (
 
 var r = rand.New(rand.NewSource(time.Now().UnixNano()))
 
-func GetRandomString(lenth int) []byte {
+func GetRandomString(length int) []byte {
 	str := "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	bytes := []byte(str)
 	result := []byte{}
 
-	for i := 0; i < lenth; i++ {
+	for i := 0; i < length; i++ {
 		result = append(result, bytes[r.Intn(len(bytes))])
 	}
 	return result
 }
 
 func TestDbImpl(t *testing.T) {
-	db := Open("D:\\LanguorDB")
+	db := open("D:\\LanguorDB")
 	db.Put([]byte("123"), []byte("456"))
 
 	value, err := db.Get([]byte("123"))
@@ -34,11 +34,11 @@ func TestDbImpl(t *testing.T) {
 	db.Put([]byte("123"), []byte("789"))
 	value, _ = db.Get([]byte("123"))
 	fmt.Println(string(value))
-	db.Close()
+	db.close()
 }
 
 func TestDbLoad(t *testing.T) {
-	db := Open("D:\\LanguorDB")
+	db := open("D:\\LanguorDB")
 	db.Put([]byte("123"), []byte("456"))
 
 	for i := 0; i < 1000000; i++ {
@@ -46,10 +46,10 @@ func TestDbLoad(t *testing.T) {
 	}
 	value, err := db.Get([]byte("123"))
 	fmt.Println("db:", err, string(value))
-	db.Close()
+	db.close()
 
-	db2 := Open("D:\\LanguorDB")
+	db2 := open("D:\\LanguorDB")
 	value, err = db2.Get([]byte("123"))
 	fmt.Println("db reopen:", err, string(value))
-	db2.Close()
+	db2.close()
 }

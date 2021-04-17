@@ -1,6 +1,8 @@
 package languorDB
 
 import (
+	"encoding/binary"
+	"io"
 	"log"
 	"sort"
 
@@ -15,6 +17,35 @@ type Shard struct {
 	largest  *internalkey.InternalKey
 	fileSize uint64
 	pages    []*FileMetaData
+}
+
+func (shard *Shard) EncodeTo(w io.Writer) error {
+	binary.Write(w, binary.LittleEndian, shard.fileSize)
+	shard.smallest.EncodeTo(w)
+	shard.largest.EncodeTo(w)
+	numPages := len(shard.pages)
+	binary.Write(w, binary.LittleEndian, int32(numPages))
+	for i := range shard.pages {
+		shard.pages[i].EncodeTo(w)
+	}
+	return nil
+}
+
+func (shard *Shard) DecodeFrom(r io.Reader) error {
+	binary.Read(r, binary.LittleEndian, &shard.fileSize)
+	shard.smallest = new(internalkey.InternalKey)
+	shard.smallest.DecodeFrom(r)
+	shard.largest = new(internalkey.InternalKey)
+	shard.largest.DecodeFrom(r)
+	var numPages int32
+	binary.Read(r, binary.LittleEndian, &numPages)
+	shard.pages = make([]*FileMetaData, numPages)
+	for i := 0; i < int(numPages); i++ {
+		var meta FileMetaData
+		meta.DecodeFrom(r)
+		shard.pages[i] = &meta
+	}
+	return nil
 }
 
 func (v *Version) MergeShards(shards []*Shard) *Shard {

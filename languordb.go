@@ -1,10 +1,6 @@
 package languorDB
 
-import (
-	"LanguorDB/db"
-)
-
-type LevelDb interface {
+type LanguorDb interface {
 	Put(key, value []byte) error
 	Get(key []byte) ([]byte, error)
 	Delete(key []byte) error
@@ -44,6 +40,6 @@ type Iterator interface {
 	SeekToLast()
 }
 
-func Open(dbName string) LevelDb {
-	return db.Open(dbName)
+func Open(dbName string) LanguorDb {
+	return open(dbName)
 }
