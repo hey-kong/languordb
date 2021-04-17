@@ -19,6 +19,24 @@ type FileMetaData struct {
 	largest    *internalkey.InternalKey
 }
 
+type Metas []*FileMetaData
+
+func (arr Metas) Len() int {
+	return len(arr)
+}
+
+func (arr Metas) Less(i, j int) bool {
+	ret := internalkey.UserKeyComparator(arr[i].smallest.UserKey, arr[j].smallest.UserKey)
+	if ret == 0 {
+		return arr[i].number < arr[j].number
+	}
+	return ret == -1
+}
+
+func (arr Metas) Swap(i, j int) {
+	arr[i], arr[j] = arr[j], arr[i]
+}
+
 type Version struct {
 	tableCache     *TableCache
 	nextFileNumber uint64

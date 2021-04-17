@@ -186,7 +186,7 @@ func (v *Version) DoCompactionWork() bool {
 	}
 	var list []*FileMetaData
 	var currentKey *internalkey.InternalKey
-	iter := v.makeInputIterator(c)
+	iter := v.makeInputsIterator(c)
 	for iter.SeekToFirst(); iter.Valid(); iter.Next() {
 		var meta FileMetaData
 		meta.allowSeeks = 1 << 30
@@ -197,7 +197,7 @@ func (v *Version) DoCompactionWork() bool {
 		meta.smallest = iter.InternalKey()
 		for ; iter.Valid(); iter.Next() {
 			if currentKey != nil {
-				// 去除重复的记录
+				// Remove duplicate KVs
 				ret := internalkey.UserKeyComparator(iter.InternalKey().UserKey, currentKey.UserKey)
 				if ret == 0 {
 					continue
@@ -232,7 +232,7 @@ func (v *Version) DoCompactionWork() bool {
 	return true
 }
 
-func (v *Version) makeInputIterator(c *Compaction) *MergingIterator {
+func (v *Version) makeInputsIterator(c *Compaction) *MergingIterator {
 	var list []*sstable.Iterator
 	for i := 0; i < len(c.inputs[0]); i++ {
 		list = append(list, v.tableCache.NewIterator(c.inputs[0][i].number))
