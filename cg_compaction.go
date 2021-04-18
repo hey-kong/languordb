@@ -45,14 +45,14 @@ func (v *Version) WriteCgLevel0Table(imm *memtable.MemTable) {
 
 	level := 0
 	v.addFile(level, &meta)
-	shard := &Shard{
-		smallest: meta.smallest,
-		largest:  meta.largest,
-		fileSize: meta.fileSize,
-		pages:    []*FileMetaData{&meta},
-	}
+
+	var shard Shard
+	shard.smallest = meta.smallest
+	shard.largest = meta.largest
+	shard.fileSize = meta.fileSize
+	shard.pages = []*FileMetaData{&meta}
 	v.index[level].fileSize += shard.fileSize
-	v.index[level].shards = append(v.index[level].shards, shard)
+	v.index[level].shards = append(v.index[level].shards, &shard)
 }
 
 func (v *Version) DoCgCompactionWork() bool {

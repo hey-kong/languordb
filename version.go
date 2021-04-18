@@ -155,8 +155,8 @@ func (v *Version) Copy() *Version {
 
 		c.index[level] = NewIndex()
 		c.index[level].fileSize = v.index[level].fileSize
-		c.index[level].shards = make([]*Shard, len(c.index[level].shards))
-		copy(c.index[level].shards, c.index[level].shards)
+		c.index[level].shards = make([]*Shard, len(v.index[level].shards))
+		copy(c.index[level].shards, v.index[level].shards)
 	}
 	return &c
 }

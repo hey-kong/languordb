@@ -3,7 +3,6 @@ package languorDB
 import (
 	"encoding/binary"
 	"io"
-	"sort"
 	"sync"
 
 	"LanguorDB/config"
@@ -47,8 +46,6 @@ func (index *Index) DecodeFrom(r io.Reader) error {
 }
 
 func (v *Version) ParallelGet(key []byte) ([]byte, error) {
-	var tmp []*FileMetaData
-	var files []*FileMetaData
 	// We can search level-by-level since entries never hop across
 	// levels.  Therefore we are guaranteed that if we find data
 	// in an smaller level, later levels are irrelevant.
@@ -58,28 +55,26 @@ func (v *Version) ParallelGet(key []byte) ([]byte, error) {
 			continue
 		}
 
+		var files []*FileMetaData
 		for i := 0; i < numShards; i++ {
 			for j := range v.index[level].shards[i].pages {
 				f := v.index[level].shards[i].pages[j]
 				if internalkey.UserKeyComparator(key, f.smallest.UserKey) >= 0 && internalkey.UserKeyComparator(key, f.largest.UserKey) <= 0 {
-					tmp = append(tmp, f)
+					files = append(files, f)
 					break
 				}
 			}
 		}
-		if len(tmp) == 0 {
+		if len(files) == 0 {
 			continue
 		}
-		sort.Slice(tmp, func(i, j int) bool { return tmp[i].number > tmp[j].number })
-		numFiles := len(tmp)
-		files = tmp
 
 		var wg sync.WaitGroup
 		var mu sync.Mutex
 		var res []byte = nil
 		var resErr error = errors.ErrNotFound
 		var resFileNum uint64 = 0
-		for i := 0; i < numFiles; i++ {
+		for i := range files {
 			f := files[i]
 			wg.Add(1)
 			go func() {

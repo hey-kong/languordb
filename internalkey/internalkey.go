@@ -34,6 +34,13 @@ func NewInternalKey(seq uint64, valueType ValueType, key, value []byte) *Interna
 }
 
 func (key *InternalKey) EncodeTo(w io.Writer) error {
+	var isNil bool
+	if key == nil {
+		isNil = true
+		return binary.Write(w, binary.LittleEndian, isNil)
+	}
+
+	binary.Write(w, binary.LittleEndian, isNil)
 	binary.Write(w, binary.LittleEndian, key.Seq)
 	binary.Write(w, binary.LittleEndian, key.Type)
 	binary.Write(w, binary.LittleEndian, int32(len(key.UserKey)))
@@ -43,6 +50,13 @@ func (key *InternalKey) EncodeTo(w io.Writer) error {
 }
 
 func (key *InternalKey) DecodeFrom(r io.Reader) error {
+	var isNil bool
+	binary.Read(r, binary.LittleEndian, &isNil)
+	if isNil {
+		key = nil
+		return nil
+	}
+
 	var tmp int32
 	binary.Read(r, binary.LittleEndian, &key.Seq)
 	binary.Read(r, binary.LittleEndian, &key.Type)

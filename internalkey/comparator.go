@@ -9,6 +9,15 @@ func InternalKeyComparator(a, b interface{}) int {
 	//    decreasing type (though sequence# should be enough to disambiguate)
 	aKey := a.(*InternalKey)
 	bKey := b.(*InternalKey)
+	if aKey == nil && bKey == nil {
+		return 0
+	}
+	if aKey == nil {
+		return -1
+	}
+	if bKey == nil {
+		return 1
+	}
 	r := UserKeyComparator(aKey.UserKey, bKey.UserKey)
 	if r == 0 {
 		anum := aKey.Seq

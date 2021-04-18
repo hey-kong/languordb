@@ -130,10 +130,30 @@ func (v *Version) makeShardsIterator(shards []*Shard) ([]*FileMetaData, *Merging
 }
 
 func makeNotOverlapFileMap(metas []*FileMetaData) map[uint64]bool {
+	if len(metas) == 0 {
+		return nil
+	}
+
 	sort.Sort(Metas(metas))
 	fileSet := make(map[uint64]bool)
 	for i := range metas {
-		if internalkey.UserKeyComparator(metas[i].largest.UserKey, metas[i+1].smallest.UserKey) < 0 {
+		isOverlap := false
+		for left := 0; left < i; left++ {
+			if internalkey.UserKeyComparator(metas[left].largest.UserKey, metas[i].smallest.UserKey) >= 0 {
+				isOverlap = true
+				break
+			}
+		}
+		if isOverlap {
+			continue
+		}
+		for right := i + 1; right < len(metas); right++ {
+			if internalkey.UserKeyComparator(metas[i].largest.UserKey, metas[right].smallest.UserKey) >= 0 {
+				isOverlap = true
+				break
+			}
+		}
+		if !isOverlap {
 			fileSet[metas[i].number] = true
 		}
 	}
