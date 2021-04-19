@@ -75,10 +75,10 @@ func (v *Version) MergeShards(shards []*Shard) *Shard {
 				} else if ret < 0 {
 					log.Fatalf("%s < %s", string(iter.InternalKey().UserKey), string(currentKey.UserKey))
 				}
-				currentKey = iter.InternalKey()
 			}
 			meta.largest = iter.InternalKey()
 			builder.Add(iter.InternalKey())
+			currentKey = iter.InternalKey()
 			if builder.FileSize() > config.MaxFileSize {
 				break
 			}
@@ -92,18 +92,14 @@ func (v *Version) MergeShards(shards []*Shard) *Shard {
 	}
 
 	sort.Sort(Metas(list))
-	s := &Shard{}
-	for i := 1; i < len(list); i++ {
+	var s Shard
+	s.smallest = list[0].smallest
+	s.largest = list[len(list)-1].largest
+	for i := 0; i < len(list); i++ {
 		s.fileSize += list[i].fileSize
-		if internalkey.InternalKeyComparator(s.largest, list[i].largest) < 0 {
-			s.largest = list[i].largest
-		}
-		if internalkey.InternalKeyComparator(s.smallest, list[i].smallest) > 0 {
-			s.smallest = list[i].smallest
-		}
 	}
 	s.pages = list
-	return s
+	return &s
 }
 
 func (v *Version) makeShardsIterator(shards []*Shard) ([]*FileMetaData, *MergingIterator) {

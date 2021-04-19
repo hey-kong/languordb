@@ -152,10 +152,10 @@ func (v *Version) DoCompactionWork() bool {
 				} else if ret < 0 {
 					log.Fatalf("%s < %s", string(iter.InternalKey().UserKey), string(currentKey.UserKey))
 				}
-				currentKey = iter.InternalKey()
 			}
 			meta.largest = iter.InternalKey()
 			builder.Add(iter.InternalKey())
+			currentKey = iter.InternalKey()
 			if builder.FileSize() > config.MaxFileSize {
 				break
 			}
