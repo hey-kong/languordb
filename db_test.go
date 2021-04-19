@@ -21,7 +21,7 @@ func GetRandomString(length int) []byte {
 }
 
 func TestDbImpl(t *testing.T) {
-	db := open("D:\\LanguorDB")
+	db := Open("D:\\LanguorDB")
 	db.Put([]byte("123"), []byte("456"))
 
 	value, err := db.Get([]byte("123"))
@@ -34,11 +34,11 @@ func TestDbImpl(t *testing.T) {
 	db.Put([]byte("123"), []byte("789"))
 	value, _ = db.Get([]byte("123"))
 	fmt.Println(string(value))
-	db.close()
+	db.Close()
 }
 
 func TestDbLoad(t *testing.T) {
-	db := open("D:\\LanguorDB")
+	db := Open("D:\\LanguorDB")
 	db.Put([]byte("123"), []byte("456"))
 
 	for i := 0; i < 1000000; i++ {
@@ -46,10 +46,10 @@ func TestDbLoad(t *testing.T) {
 	}
 	value, err := db.Get([]byte("123"))
 	fmt.Println("db:", err, string(value))
-	db.close()
+	db.Close()
 
-	db2 := open("D:\\LanguorDB")
+	db2 := Open("D:\\LanguorDB")
 	value, err = db2.Get([]byte("123"))
 	fmt.Println("db reopen:", err, string(value))
-	db2.close()
+	db2.Close()
 }

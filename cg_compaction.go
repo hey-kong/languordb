@@ -36,6 +36,9 @@ func (v *Version) WriteCgLevel0Table(imm *memtable.MemTable) {
 		for ; iter.Valid(); iter.Next() {
 			meta.largest = iter.InternalKey()
 			builder.Add(iter.InternalKey())
+			if config.RowCache {
+				v.rowCache.Add(iter.InternalKey().UserKey, iter.InternalKey().UserValue)
+			}
 		}
 		builder.Finish()
 		meta.fileSize = uint64(builder.FileSize())

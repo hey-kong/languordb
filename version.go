@@ -68,8 +68,9 @@ type Version struct {
 	// Either an empty string, or a valid InternalKey.
 	compactPointer [config.NumLevels]*internalkey.InternalKey
 
-	// Coarse-grain compaction index.
-	index [config.NumLevels]*Index
+	// For coarse-grain compaction.
+	index    [config.NumLevels]*Index
+	rowCache *RowCache
 }
 
 func New(dbName string) *Version {
@@ -78,6 +79,9 @@ func New(dbName string) *Version {
 	v.nextFileNumber = 1
 	for level := 0; level < config.NumLevels; level++ {
 		v.index[level] = NewIndex()
+	}
+	if config.RowCache {
+		v.rowCache = NewRowCache(dbName)
 	}
 	return &v
 }
@@ -157,6 +161,9 @@ func (v *Version) Copy() *Version {
 		c.index[level].fileSize = v.index[level].fileSize
 		c.index[level].shards = make([]*Shard, len(v.index[level].shards))
 		copy(c.index[level].shards, v.index[level].shards)
+	}
+	if config.RowCache {
+		c.rowCache = v.rowCache
 	}
 	return &c
 }

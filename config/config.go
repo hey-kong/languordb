@@ -10,4 +10,6 @@ const (
 	MaxMemCompactLevel       = 2
 	MaxFileSize              = 2 << 20
 	MaxLevelShards           = 4
+	RowCache                 = true
+	RowCacheSize             = 100000
 )

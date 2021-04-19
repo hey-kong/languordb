@@ -20,7 +20,7 @@ type Db struct {
 	bgCompactionScheduled bool
 }
 
-func open(dbName string) *Db {
+func Open(dbName string) *Db {
 	var db Db
 	db.name = dbName
 	db.mem = memtable.New()
@@ -41,7 +41,7 @@ func open(dbName string) *Db {
 	return &db
 }
 
-func (db *Db) close() {
+func (db *Db) Close() {
 	db.mu.Lock()
 	for db.bgCompactionScheduled {
 		db.cond.Wait()
@@ -80,7 +80,17 @@ func (db *Db) Get(key []byte) ([]byte, error) {
 		}
 	}
 
+	if config.RowCache {
+		value, err := db.current.rowCache.Get(key)
+		if err != errors.ErrNotFound {
+			return value, err
+		}
+	}
+
 	value, err = current.ParallelGet(key)
+	if config.RowCache && err == nil {
+		db.current.rowCache.Add(key, value)
+	}
 	return value, err
 }
 

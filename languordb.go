@@ -39,7 +39,3 @@ type Iterator interface {
 	// Final state of iterator is Valid() if the list is not empty.
 	SeekToLast()
 }
-
-func Open(dbName string) LanguorDb {
-	return open(dbName)
-}
