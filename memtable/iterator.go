@@ -1,8 +1,8 @@
 package memtable
 
 import (
-	"LanguorDB/internalkey"
-	"LanguorDB/skiplist"
+	"github.com/hey-kong/languordb/internalkey"
+	"github.com/hey-kong/languordb/skiplist"
 )
 
 type Iterator struct {

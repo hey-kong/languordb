@@ -3,7 +3,7 @@ package block
 import (
 	"testing"
 
-	"LanguorDB/internalkey"
+	"github.com/hey-kong/languordb/internalkey"
 )
 
 func TestBlock(t *testing.T) {

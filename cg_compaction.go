@@ -1,12 +1,12 @@
-package languorDB
+package languordb
 
 import (
 	"log"
 
-	"LanguorDB/config"
-	"LanguorDB/memtable"
-	"LanguorDB/sstable"
-	"LanguorDB/utils"
+	"github.com/hey-kong/languordb/config"
+	"github.com/hey-kong/languordb/memtable"
+	"github.com/hey-kong/languordb/sstable"
+	"github.com/hey-kong/languordb/utils"
 )
 
 type CgCompaction struct {

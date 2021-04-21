@@ -1,11 +1,11 @@
-package languorDB
+package languordb
 
 import (
 	"sync"
 
-	"LanguorDB/config"
-	"LanguorDB/errors"
 	"github.com/hashicorp/golang-lru"
+	"github.com/hey-kong/languordb/config"
+	"github.com/hey-kong/languordb/errors"
 )
 
 type RowCache struct {

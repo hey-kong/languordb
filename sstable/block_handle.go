@@ -4,8 +4,8 @@ import (
 	"encoding/binary"
 	"io"
 
-	"LanguorDB/errors"
-	"LanguorDB/internalkey"
+	"github.com/hey-kong/languordb/errors"
+	"github.com/hey-kong/languordb/internalkey"
 )
 
 const (

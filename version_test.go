@@ -1,15 +1,15 @@
-package languorDB
+package languordb
 
 import (
 	"fmt"
 	"testing"
 
-	"LanguorDB/internalkey"
-	"LanguorDB/memtable"
+	"github.com/hey-kong/languordb/internalkey"
+	"github.com/hey-kong/languordb/memtable"
 )
 
 func TestVersionGet(t *testing.T) {
-	v := New("D:\\LanguorDB")
+	v := New("D:\\languordb")
 	var f FileMetaData
 	f.number = 123
 	f.smallest = internalkey.NewInternalKey(1, internalkey.TypeValue, []byte("123"), nil)
@@ -21,14 +21,14 @@ func TestVersionGet(t *testing.T) {
 }
 
 func TestVersionLoad(t *testing.T) {
-	v := New("D:\\LanguorDB")
+	v := New("D:\\languordb")
 	memTable := memtable.New()
 	memTable.Add(1234567, internalkey.TypeValue, []byte("aadsa34a"), []byte("bb23b3423"))
 	v.WriteCgLevel0Table(memTable)
 	n, _ := v.Save()
 	fmt.Println(v)
 
-	v2, _ := Load("D:\\LanguorDB", n)
+	v2, _ := Load("D:\\languordb", n)
 	fmt.Println(v2)
 
 	value, err := v2.Get([]byte("aadsa34a"))
@@ -36,7 +36,7 @@ func TestVersionLoad(t *testing.T) {
 }
 
 func TestVersionParallelGet(t *testing.T) {
-	v := New("D:\\LanguorDB")
+	v := New("D:\\languordb")
 	memTable := memtable.New()
 	memTable.Add(1234567, internalkey.TypeValue, []byte("aadsa34a"), []byte("old-bb23b3423"))
 	v.WriteCgLevel0Table(memTable)
@@ -46,7 +46,7 @@ func TestVersionParallelGet(t *testing.T) {
 	n, _ := v.Save()
 	fmt.Println(v)
 
-	v2, _ := Load("D:\\LanguorDB", n)
+	v2, _ := Load("D:\\languordb", n)
 	fmt.Println(v2)
 
 	value, err := v2.ParallelGet([]byte("aadsa34a"))

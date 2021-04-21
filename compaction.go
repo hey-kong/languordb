@@ -1,13 +1,13 @@
-package languorDB
+package languordb
 
 import (
 	"log"
 
-	"LanguorDB/config"
-	"LanguorDB/internalkey"
-	"LanguorDB/memtable"
-	"LanguorDB/sstable"
-	"LanguorDB/utils"
+	"github.com/hey-kong/languordb/config"
+	"github.com/hey-kong/languordb/internalkey"
+	"github.com/hey-kong/languordb/memtable"
+	"github.com/hey-kong/languordb/sstable"
+	"github.com/hey-kong/languordb/utils"
 )
 
 type Compaction struct {

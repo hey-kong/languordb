@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"testing"
 
-	"LanguorDB/internalkey"
+	"github.com/hey-kong/languordb/internalkey"
 )
 
 func TestSSTable(t *testing.T) {
-	builder := NewTableBuilder("D:\\LanguorDB\\test_sstable.ldb")
+	builder := NewTableBuilder("D:\\languordb\\test_sstable.ldb")
 	item := internalkey.NewInternalKey(1, internalkey.TypeValue, []byte("111"), []byte("aaa"))
 	builder.Add(item)
 	item = internalkey.NewInternalKey(2, internalkey.TypeValue, []byte("222"), []byte("bbb"))
@@ -17,7 +17,7 @@ func TestSSTable(t *testing.T) {
 	builder.Add(item)
 	builder.Finish()
 
-	table, err := Open("D:\\LanguorDB\\test_sstable.ldb")
+	table, err := Open("D:\\languordb\\test_sstable.ldb")
 	if err != nil {
 		fmt.Println(err)
 	} else {

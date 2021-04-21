@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"LanguorDB/internalkey"
+	"github.com/hey-kong/languordb/internalkey"
 )
 
 func TestMemTable(t *testing.T) {

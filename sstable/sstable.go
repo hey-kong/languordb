@@ -4,9 +4,9 @@ import (
 	"io"
 	"os"
 
-	"LanguorDB/errors"
-	"LanguorDB/internalkey"
-	"LanguorDB/sstable/block"
+	"github.com/hey-kong/languordb/errors"
+	"github.com/hey-kong/languordb/internalkey"
+	"github.com/hey-kong/languordb/sstable/block"
 )
 
 type SSTable struct {

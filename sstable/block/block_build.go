@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 
-	"LanguorDB/internalkey"
+	"github.com/hey-kong/languordb/internalkey"
 )
 
 type Builder struct {

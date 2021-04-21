@@ -1,13 +1,13 @@
-package languorDB
+package languordb
 
 import (
 	"encoding/binary"
 	"io"
 	"sync"
 
-	"LanguorDB/config"
-	"LanguorDB/errors"
-	"LanguorDB/internalkey"
+	"github.com/hey-kong/languordb/config"
+	"github.com/hey-kong/languordb/errors"
+	"github.com/hey-kong/languordb/internalkey"
 )
 
 type Index struct {

@@ -1,13 +1,13 @@
-package languorDB
+package languordb
 
 import (
 	"sync"
 	"time"
 
-	"LanguorDB/config"
-	"LanguorDB/errors"
-	"LanguorDB/internalkey"
-	"LanguorDB/memtable"
+	"github.com/hey-kong/languordb/config"
+	"github.com/hey-kong/languordb/errors"
+	"github.com/hey-kong/languordb/internalkey"
+	"github.com/hey-kong/languordb/memtable"
 )
 
 type DB struct {

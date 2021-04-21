@@ -1,4 +1,4 @@
-module LanguorDB
+module github.com/hey-kong/languordb
 
 go 1.15
 

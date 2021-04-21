@@ -1,7 +1,7 @@
 package block
 
 import (
-	"LanguorDB/internalkey"
+	"github.com/hey-kong/languordb/internalkey"
 )
 
 type Iterator struct {

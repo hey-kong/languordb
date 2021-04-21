@@ -1,8 +1,8 @@
-package languorDB
+package languordb
 
 import (
-	"LanguorDB/internalkey"
-	"LanguorDB/sstable"
+	"github.com/hey-kong/languordb/internalkey"
+	"github.com/hey-kong/languordb/sstable"
 )
 
 type MergingIterator struct {

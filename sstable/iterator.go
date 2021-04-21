@@ -1,8 +1,8 @@
 package sstable
 
 import (
-	"LanguorDB/internalkey"
-	"LanguorDB/sstable/block"
+	"github.com/hey-kong/languordb/internalkey"
+	"github.com/hey-kong/languordb/sstable/block"
 )
 
 type Iterator struct {

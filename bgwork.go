@@ -1,4 +1,4 @@
-package languorDB
+package languordb
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"os"
 	"strconv"
 
-	"LanguorDB/utils"
+	"github.com/hey-kong/languordb/utils"
 )
 
 func (db *DB) maybeScheduleCompaction() {

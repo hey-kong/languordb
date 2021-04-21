@@ -1,4 +1,4 @@
-package languorDB
+package languordb
 
 import (
 	"encoding/binary"
@@ -7,10 +7,10 @@ import (
 	"os"
 	"sort"
 
-	"LanguorDB/config"
-	"LanguorDB/errors"
-	"LanguorDB/internalkey"
-	"LanguorDB/utils"
+	"github.com/hey-kong/languordb/config"
+	"github.com/hey-kong/languordb/errors"
+	"github.com/hey-kong/languordb/internalkey"
+	"github.com/hey-kong/languordb/utils"
 )
 
 type FileMetaData struct {

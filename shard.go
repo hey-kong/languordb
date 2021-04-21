@@ -1,4 +1,4 @@
-package languorDB
+package languordb
 
 import (
 	"encoding/binary"
@@ -6,10 +6,10 @@ import (
 	"log"
 	"sort"
 
-	"LanguorDB/config"
-	"LanguorDB/internalkey"
-	"LanguorDB/sstable"
-	"LanguorDB/utils"
+	"github.com/hey-kong/languordb/config"
+	"github.com/hey-kong/languordb/internalkey"
+	"github.com/hey-kong/languordb/sstable"
+	"github.com/hey-kong/languordb/utils"
 )
 
 type Shard struct {

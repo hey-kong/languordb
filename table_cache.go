@@ -1,12 +1,12 @@
-package languorDB
+package languordb
 
 import (
 	"sync"
 
-	"LanguorDB/config"
-	"LanguorDB/sstable"
-	"LanguorDB/utils"
 	"github.com/hashicorp/golang-lru"
+	"github.com/hey-kong/languordb/config"
+	"github.com/hey-kong/languordb/sstable"
+	"github.com/hey-kong/languordb/utils"
 )
 
 type TableCache struct {
