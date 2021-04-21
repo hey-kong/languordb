@@ -9,7 +9,7 @@ import (
 	"LanguorDB/utils"
 )
 
-func (db *Db) maybeScheduleCompaction() {
+func (db *DB) maybeScheduleCompaction() {
 	if db.bgCompactionScheduled {
 		return
 	}
@@ -17,7 +17,7 @@ func (db *Db) maybeScheduleCompaction() {
 	go db.backgroundCall()
 }
 
-func (db *Db) backgroundCall() {
+func (db *DB) backgroundCall() {
 	db.mu.Lock()
 	defer db.mu.Unlock()
 	db.backgroundCompaction()
@@ -25,7 +25,7 @@ func (db *Db) backgroundCall() {
 	db.cond.Broadcast()
 }
 
-func (db *Db) backgroundCompaction() {
+func (db *DB) backgroundCompaction() {
 	imm := db.imm
 	version := db.current.Copy()
 	db.mu.Unlock()
@@ -45,13 +45,13 @@ func (db *Db) backgroundCompaction() {
 	db.current = version
 }
 
-func (db *Db) SetCurrentFile(descriptorNumber uint64) {
+func (db *DB) SetCurrentFile(descriptorNumber uint64) {
 	tmp := utils.TempFileName(db.name, descriptorNumber)
 	ioutil.WriteFile(tmp, []byte(fmt.Sprintf("%d", descriptorNumber)), 0600)
 	os.Rename(tmp, utils.CurrentFileName(db.name))
 }
 
-func (db *Db) ReadCurrentFile() uint64 {
+func (db *DB) ReadCurrentFile() uint64 {
 	b, err := ioutil.ReadFile(utils.CurrentFileName(db.name))
 	if err != nil {
 		return 0

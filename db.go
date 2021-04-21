@@ -10,7 +10,7 @@ import (
 	"LanguorDB/memtable"
 )
 
-type Db struct {
+type DB struct {
 	name                  string
 	mu                    sync.Mutex
 	cond                  *sync.Cond
@@ -20,8 +20,8 @@ type Db struct {
 	bgCompactionScheduled bool
 }
 
-func Open(dbName string) *Db {
-	var db Db
+func Open(dbName string) (*DB, error) {
+	var db DB
 	db.name = dbName
 	db.mem = memtable.New()
 	db.imm = nil
@@ -31,17 +31,17 @@ func Open(dbName string) *Db {
 	if num > 0 {
 		v, err := Load(dbName, num)
 		if err != nil {
-			return nil
+			return nil, err
 		}
 		db.current = v
 	} else {
 		db.current = New(dbName)
 	}
 
-	return &db
+	return &db, nil
 }
 
-func (db *Db) Close() {
+func (db *DB) Close() {
 	db.mu.Lock()
 	for db.bgCompactionScheduled {
 		db.cond.Wait()
@@ -49,7 +49,7 @@ func (db *Db) Close() {
 	db.mu.Unlock()
 }
 
-func (db *Db) Put(key, value []byte) error {
+func (db *DB) Put(key, value []byte) error {
 	// May temporarily unlock and wait.
 	seq, err := db.makeRoomForWrite()
 	if err != nil {
@@ -62,7 +62,7 @@ func (db *Db) Put(key, value []byte) error {
 	return nil
 }
 
-func (db *Db) Get(key []byte) ([]byte, error) {
+func (db *DB) Get(key []byte) ([]byte, error) {
 	db.mu.Lock()
 	mem := db.mem
 	imm := db.mem
@@ -94,7 +94,7 @@ func (db *Db) Get(key []byte) ([]byte, error) {
 	return value, err
 }
 
-func (db *Db) Delete(key []byte) error {
+func (db *DB) Delete(key []byte) error {
 	seq, err := db.makeRoomForWrite()
 	if err != nil {
 		return err
@@ -103,7 +103,7 @@ func (db *Db) Delete(key []byte) error {
 	return nil
 }
 
-func (db *Db) makeRoomForWrite() (uint64, error) {
+func (db *DB) makeRoomForWrite() (uint64, error) {
 	db.mu.Lock()
 	defer db.mu.Unlock()
 
