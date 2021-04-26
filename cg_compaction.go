@@ -9,6 +9,7 @@ import (
 	"github.com/hey-kong/languordb/utils"
 )
 
+// CgCompaction is initialized before coarse-grain compaction works
 type CgCompaction struct {
 	level  int
 	inputs []*Shard

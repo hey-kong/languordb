@@ -1,5 +1,5 @@
 # languordb
-LanguorDB is a simple key-value database written in Go, based on [LevelDB](https://github.com/google/leveldb). It is not for production use. Instead, it is designed as my bachelor's degree final project titled 'Optimization of Key-Value Store by Coarse-grain Compaction'.
+LanguorDB is a simple key-value database written in Go, based on [LevelDB](https://github.com/google/leveldb). It is not for production use. Instead, it is designed as my bachelor's degree final project titled 'Optimization of Key-Value Database by Coarse-grain Compaction'.
 
 ## Benchmark System
 
@@ -9,6 +9,8 @@ LanguorDB is a simple key-value database written in Go, based on [LevelDB](https
 * CPU and Memory: 8Cores 16 GiB
 
 ## To run benchmark
+
+View the benchmark repo [here](https://github.com/hey-kong/languordb-bench).
 
 >go test -bench=Put -benchtime=50000x
 >
