@@ -13,25 +13,25 @@ type MemTable struct {
 
 func New() *MemTable {
 	var memTable MemTable
-	memTable.table = skiplist.New(internalkey.InternalKeyComparator)
+	memTable.table = skiplist.NewSkipList(internalkey.InternalKeyComparator)
 	return &memTable
 }
 
 func (memTable *MemTable) NewIterator() *Iterator {
-	return &Iterator{listIter: memTable.table.NewIterator()}
+	return &Iterator{listIter: skiplist.NewIterator(memTable.table)}
 }
 
 func (memTable *MemTable) Add(seq uint64, valueType internalkey.ValueType, key, value []byte) {
 	internalKey := internalkey.NewInternalKey(seq, valueType, key, value)
 
 	memTable.memoryUsage += uint64(16 + len(key) + len(value))
-	memTable.table.Insert(internalKey)
+	memTable.table.Insert(internalKey, nil)
 }
 
 func (memTable *MemTable) Get(key []byte) ([]byte, error) {
 	lookupKey := internalkey.LookupKey(key)
 
-	it := memTable.table.NewIterator()
+	it := skiplist.NewIterator(memTable.table)
 	it.Seek(lookupKey)
 	if it.Valid() {
 		internalKey := it.Key().(*internalkey.InternalKey)
