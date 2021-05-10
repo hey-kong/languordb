@@ -31,10 +31,10 @@ func (db *DB) backgroundCompaction() {
 	db.mu.Unlock()
 	// minor compaction
 	if imm != nil {
-		version.WriteCgLevel0Table(imm)
+		version.WriteLevel0Table(imm)
 	}
 	// major compaction
-	for version.DoCgCompactionWork() {
+	for version.DoCompactionWork() {
 		version.Log()
 	}
 	descriptorNumber, _ := version.Save()

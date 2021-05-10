@@ -24,7 +24,7 @@ func TestVersionLoad(t *testing.T) {
 	v := New("D:\\languordb")
 	memTable := memtable.New()
 	memTable.Add(1234567, internalkey.TypeValue, []byte("aadsa34a"), []byte("bb23b3423"))
-	v.WriteCgLevel0Table(memTable)
+	v.WriteLevel0Table(memTable)
 	n, _ := v.Save()
 	fmt.Println(v)
 
@@ -39,10 +39,10 @@ func TestVersionParallelGet(t *testing.T) {
 	v := New("D:\\languordb")
 	memTable := memtable.New()
 	memTable.Add(1234567, internalkey.TypeValue, []byte("aadsa34a"), []byte("old-bb23b3423"))
-	v.WriteCgLevel0Table(memTable)
+	v.WriteLevel0Table(memTable)
 	memTable = memtable.New()
 	memTable.Add(1234567, internalkey.TypeValue, []byte("aadsa34a"), []byte("new-bb23b3423"))
-	v.WriteCgLevel0Table(memTable)
+	v.WriteLevel0Table(memTable)
 	n, _ := v.Save()
 	fmt.Println(v)
 
