@@ -3,6 +3,7 @@ package sstable
 import (
 	"os"
 
+	"github.com/golang/snappy"
 	"github.com/hey-kong/languordb/internalkey"
 	"github.com/hey-kong/languordb/sstable/block"
 )
@@ -62,7 +63,7 @@ func (builder *TableBuilder) flush() {
 	}
 	orgKey := builder.pendingIndexHandle.InternalKey
 	builder.pendingIndexHandle.InternalKey = internalkey.NewInternalKey(orgKey.Seq, orgKey.Type, orgKey.UserKey, nil)
-	builder.pendingIndexHandle.SetBlockHandle(builder.writeblock(&builder.dataBlockBuilder))
+	builder.pendingIndexHandle.SetBlockHandle(builder.writeBlock(&builder.dataBlockBuilder))
 	builder.pendingIndexEntry = true
 }
 
@@ -77,7 +78,7 @@ func (builder *TableBuilder) Finish() error {
 		builder.pendingIndexEntry = false
 	}
 	var footer Footer
-	footer.IndexHandle = builder.writeblock(&builder.indexBlockBuilder)
+	footer.IndexHandle = builder.writeBlock(&builder.indexBlockBuilder)
 
 	// write footer block
 	footer.EncodeTo(builder.file)
@@ -85,9 +86,10 @@ func (builder *TableBuilder) Finish() error {
 	return nil
 }
 
-func (builder *TableBuilder) writeblock(blockBuilder *block.Builder) BlockHandle {
+func (builder *TableBuilder) writeBlock(blockBuilder *block.Builder) BlockHandle {
 	content := blockBuilder.Finish()
-	// todo : compress, crc
+	// snappy compress
+	content = snappy.Encode(nil, content)
 	var blockHandle BlockHandle
 	blockHandle.Offset = builder.offset
 	blockHandle.Size = uint32(len(content))

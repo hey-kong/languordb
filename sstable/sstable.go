@@ -4,6 +4,7 @@ import (
 	"io"
 	"os"
 
+	"github.com/golang/snappy"
 	"github.com/hey-kong/languordb/errors"
 	"github.com/hey-kong/languordb/internalkey"
 	"github.com/hey-kong/languordb/sstable/block"
@@ -72,6 +73,6 @@ func (table *SSTable) readBlock(blockHandle BlockHandle) *block.Block {
 	if err != nil || uint32(n) != blockHandle.Size {
 		return nil
 	}
-
+	p, _ = snappy.Decode(nil, p)
 	return block.New(p)
 }
