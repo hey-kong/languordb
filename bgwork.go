@@ -29,7 +29,6 @@ func (db *DB) backgroundCompaction() {
 	imm := db.imm
 	version := db.current.Copy()
 	db.mu.Unlock()
-
 	// minor compaction
 	if imm != nil {
 		version.WriteCgLevel0Table(imm)

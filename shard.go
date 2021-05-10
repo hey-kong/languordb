@@ -63,7 +63,7 @@ func (v *Version) MergeShards(shards []*Shard) *Shard {
 		meta.allowSeeks = 1 << 30
 		meta.number = v.nextFileNumber
 		v.nextFileNumber++
-		builder := sstable.NewTableBuilder((utils.TableFileName(v.tableCache.dbName, meta.number)))
+		builder := sstable.NewTableBuilder(utils.TableFileName(v.tableCache.dbName, meta.number))
 
 		meta.smallest = iter.InternalKey()
 		for ; iter.Valid(); iter.Next() {

@@ -16,11 +16,13 @@ type CgCompaction struct {
 }
 
 func (c *CgCompaction) Log() {
-	log.Printf("CgCompaction, level:%d", c.level)
+	log.Printf("coarse-grain compaction, level:%d", c.level)
 	for i := range c.inputs {
+		numbers := make([]uint64, len(c.inputs[i].pages))
 		for j := range c.inputs[i].pages {
-			log.Printf("inputs[0]: %d", c.inputs[i].pages[j].number)
+			numbers[j] = c.inputs[i].pages[j].number
 		}
+		log.Printf("inputs[%d], file number%v", i, numbers)
 	}
 }
 
@@ -72,8 +74,8 @@ func (v *Version) DoCgCompactionWork() bool {
 	if c == nil {
 		return false
 	}
-	log.Printf("DoCgCompactionWork begin\n")
-	defer log.Printf("DoCgCompactionWork end\n")
+	log.Printf("DoCompactionWork begin\n")
+	defer log.Printf("DoCompactionWork end\n")
 	c.Log()
 	shard := v.MergeShards(c.inputs)
 	// Update Level-i index

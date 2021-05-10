@@ -142,9 +142,11 @@ func (v *Version) Save() (uint64, error) {
 
 func (v *Version) Log() {
 	for level := 0; level < config.NumLevels; level++ {
-		for i := 0; i < len(v.files[level]); i++ {
-			log.Printf("version[%d]: %d", level, v.files[level][i].number)
+		numbers := make([]uint64, len(v.files[level]))
+		for i := range numbers {
+			numbers[i] = v.files[level][i].number
 		}
+		log.Printf("level[%d], file number%v", level, numbers)
 	}
 }
 
