@@ -9,7 +9,7 @@ import (
 	"github.com/hey-kong/languordb/utils"
 )
 
-func (db *DB) maybeScheduleCompaction() {
+func (db *DB) MaybeScheduleCompaction() {
 	if db.bgCompactionScheduled {
 		return
 	}

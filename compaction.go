@@ -65,21 +65,13 @@ func (v *Version) WriteLevel0Table(imm *memtable.MemTable) {
 	iter := imm.NewIterator()
 	iter.SeekToFirst()
 	if iter.Valid() {
-		if config.RowCache {
-			// use goroutine to update cache
-			go func() {
-				cacheIter := imm.NewIterator()
-				cacheIter.SeekToFirst()
-				for ; cacheIter.Valid(); cacheIter.Next() {
-					v.rowCache.Add(cacheIter.InternalKey().UserKey, cacheIter.InternalKey().UserValue)
-				}
-			}()
-		}
-		// write to sstable
 		meta.smallest = iter.InternalKey()
 		for ; iter.Valid(); iter.Next() {
 			meta.largest = iter.InternalKey()
 			builder.Add(iter.InternalKey())
+			if config.RowCache {
+				v.rowCache.Add(iter.InternalKey().UserKey, iter.InternalKey().UserValue)
+			}
 		}
 		builder.Finish()
 		meta.fileSize = uint64(builder.FileSize())

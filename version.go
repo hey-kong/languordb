@@ -64,10 +64,6 @@ type Version struct {
 	nextFileNumber uint64
 	seq            uint64
 	files          [config.NumLevels][]*FileMetaData
-	// Per-level internalkey at which the next compaction at that level should start.
-	// Either an empty string, or a valid InternalKey.
-	compactPointer [config.NumLevels]*internalkey.InternalKey
-
 	// For coarse-grain compaction.
 	index    [config.NumLevels]*Index
 	rowCache *RowCache
