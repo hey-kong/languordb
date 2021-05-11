@@ -68,7 +68,8 @@ func (v *Version) WriteLevel0Table(imm *memtable.MemTable) {
 			meta.largest = iter.InternalKey()
 			builder.Add(iter.InternalKey())
 			if config.RowCache {
-				v.rowCache.Add(iter.InternalKey().UserKey, iter.InternalKey().UserValue)
+				key, value := iter.InternalKey().UserKey, iter.InternalKey().UserValue
+				go v.rowCache.Add(key, value)
 			}
 		}
 		builder.Finish()
