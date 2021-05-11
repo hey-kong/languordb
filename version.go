@@ -14,11 +14,10 @@ import (
 )
 
 type FileMetaData struct {
-	allowSeeks uint64
-	number     uint64
-	fileSize   uint64
-	smallest   *internalkey.InternalKey
-	largest    *internalkey.InternalKey
+	number   uint64
+	fileSize uint64
+	smallest *internalkey.InternalKey
+	largest  *internalkey.InternalKey
 }
 
 type Metas []*FileMetaData
@@ -40,7 +39,6 @@ func (arr Metas) Swap(i, j int) {
 }
 
 func (meta *FileMetaData) EncodeTo(w io.Writer) error {
-	binary.Write(w, binary.LittleEndian, meta.allowSeeks)
 	binary.Write(w, binary.LittleEndian, meta.fileSize)
 	binary.Write(w, binary.LittleEndian, meta.number)
 	meta.smallest.EncodeTo(w)
@@ -49,7 +47,6 @@ func (meta *FileMetaData) EncodeTo(w io.Writer) error {
 }
 
 func (meta *FileMetaData) DecodeFrom(r io.Reader) error {
-	binary.Read(r, binary.LittleEndian, &meta.allowSeeks)
 	binary.Read(r, binary.LittleEndian, &meta.fileSize)
 	binary.Read(r, binary.LittleEndian, &meta.number)
 	meta.smallest = new(internalkey.InternalKey)
@@ -164,6 +161,12 @@ func (v *Version) Copy() *Version {
 		c.rowCache = v.rowCache
 	}
 	return &c
+}
+
+func (v *Version) NextFileNum() uint64 {
+	x := v.nextFileNumber
+	v.nextFileNumber++
+	return x
 }
 
 func (v *Version) NextSeq() uint64 {

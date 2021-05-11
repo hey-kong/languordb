@@ -58,9 +58,7 @@ func (c *Compaction) Log() {
 
 func (v *Version) WriteLevel0Table(imm *memtable.MemTable) {
 	var meta FileMetaData
-	meta.allowSeeks = 1 << 30
-	meta.number = v.nextFileNumber
-	v.nextFileNumber++
+	meta.number = v.NextFileNum()
 	builder := sstable.NewTableBuilder(utils.TableFileName(v.tableCache.dbName, meta.number))
 	iter := imm.NewIterator()
 	iter.SeekToFirst()

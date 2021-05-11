@@ -1,7 +1,9 @@
 package sstable
 
 import (
+	"log"
 	"os"
+	"syscall"
 
 	"github.com/golang/snappy"
 	"github.com/hey-kong/languordb/internalkey"
@@ -94,8 +96,18 @@ func (builder *TableBuilder) writeBlock(blockBuilder *block.Builder) BlockHandle
 	blockHandle.Offset = builder.offset
 	blockHandle.Size = uint32(len(content))
 	builder.offset += uint32(len(content))
-	_, builder.status = builder.file.Write(content)
-	builder.file.Sync()
+
+	go func() {
+		err := syscall.Flock(int(builder.file.Fd()), syscall.LOCK_EX|syscall.LOCK_NB)
+		if err != nil {
+			log.Panicf("flock failed: %s", err)
+		}
+		defer syscall.Flock(int(builder.file.Fd()), syscall.LOCK_UN)
+
+		_, builder.status = builder.file.Write(content)
+		builder.file.Sync()
+	}()
+
 	blockBuilder.Reset()
 	return blockHandle
 }

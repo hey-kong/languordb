@@ -3,6 +3,7 @@ package languordb
 import (
 	"log"
 	"sync"
+	"time"
 
 	"github.com/hey-kong/languordb/config"
 	"github.com/hey-kong/languordb/errors"
@@ -106,21 +107,28 @@ func (db *DB) Delete(key []byte) error {
 func (db *DB) makeRoomForWrite() (uint64, error) {
 	db.mu.Lock()
 	defer db.mu.Unlock()
+
+	allowDelay := true
 	for true {
-		if db.current.NumLevelFiles(0) >= config.L0_SlowdownWritesTrigger {
-			log.Println("Too many L0 files; waiting...")
-			db.cond.Wait()
+		if allowDelay && db.current.NumLevelFiles(0) >= config.L0_SlowdownWritesTrigger {
+			db.mu.Unlock()
+			time.Sleep(1 * time.Millisecond)
+			db.mu.Lock()
+			allowDelay = false
 		} else if db.mem.ApproximateMemoryUsage() <= config.WriteBufferSize {
 			break
 		} else if db.imm != nil {
 			log.Println("Current memtable full; waiting...")
+			db.cond.Wait()
+		} else if db.current.NumLevelFiles(0) >= config.L0_SlowdownWritesTrigger {
+			log.Println("Too many L0 files; waiting...")
 			db.cond.Wait()
 		} else {
 			// Attempt to switch to a new memtable and trigger compaction of old
 			// todo : switch log
 			db.imm = db.mem
 			db.mem = memtable.New()
-			db.MaybeScheduleCompaction()
+			db.maybeScheduleCompaction()
 		}
 	}
 	return db.current.NextSeq(), nil
