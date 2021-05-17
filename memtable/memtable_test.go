@@ -9,8 +9,11 @@ import (
 
 func TestMemTable(t *testing.T) {
 	memTable := New()
-	memTable.Add(1234567, internalkey.TypeValue, []byte("aadsa34a"), []byte("bb23b3423"))
-	value, _ := memTable.Get([]byte("aadsa34a"))
-	fmt.Println(string(value))
-	fmt.Println(memTable.ApproximateMemoryUsage())
+	memTable.Add(123, internalkey.TypeValue, []byte("193"), []byte("Iggie Wang"))
+	value, _ := memTable.Get([]byte("193"))
+
+	if string(value) != "Iggie Wang" {
+		t.Fail()
+	}
+	fmt.Println("MemoryUsage: ", memTable.ApproximateMemoryUsage())
 }

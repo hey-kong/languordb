@@ -38,10 +38,10 @@ func TestVersionLoad(t *testing.T) {
 func TestVersionParallelGet(t *testing.T) {
 	v := New("D:\\languordb")
 	memTable := memtable.New()
-	memTable.Add(1234567, internalkey.TypeValue, []byte("aadsa34a"), []byte("old-bb23b3423"))
+	memTable.Add(1234567, internalkey.TypeValue, []byte("whu193"), []byte("old-whu193"))
 	v.WriteLevel0Table(memTable)
 	memTable = memtable.New()
-	memTable.Add(1234567, internalkey.TypeValue, []byte("aadsa34a"), []byte("new-bb23b3423"))
+	memTable.Add(1234567, internalkey.TypeValue, []byte("whu193"), []byte("new-whu193"))
 	v.WriteLevel0Table(memTable)
 	n, _ := v.Save()
 	fmt.Println(v)
@@ -49,8 +49,8 @@ func TestVersionParallelGet(t *testing.T) {
 	v2, _ := Load("D:\\languordb", n)
 	fmt.Println(v2)
 
-	value, err := v2.ParallelGet([]byte("aadsa34a"))
-	if err != nil || string(value) != "new-bb23b3423" {
+	value, err := v2.ParallelGet([]byte("whu193"))
+	if err != nil || string(value) != "new-whu193" {
 		t.Fail()
 	}
 }

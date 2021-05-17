@@ -2,6 +2,7 @@ package languordb
 
 import (
 	"log"
+	"os"
 	"sync"
 	"time"
 
@@ -15,6 +16,7 @@ type DB struct {
 	name                  string
 	mu                    sync.Mutex
 	cond                  *sync.Cond
+	file                  *os.File
 	mem                   *memtable.MemTable
 	imm                   *memtable.MemTable
 	current               *Version
@@ -38,6 +40,8 @@ func Open(dbName string) (*DB, error) {
 	} else {
 		db.current = New(dbName)
 	}
+	db.SetWalFile()
+	db.SetLogFile()
 
 	return &db, nil
 }
@@ -48,16 +52,21 @@ func (db *DB) Close() {
 	for db.bgCompactionScheduled {
 		db.cond.Wait()
 	}
+	db.file.Close()
 }
 
 func (db *DB) Put(key, value []byte) error {
-	// May temporarily unlock and wait.
+	// May temporarily unlock and wait
 	seq, err := db.makeRoomForWrite()
 	if err != nil {
 		return err
 	}
 
-	// todo : add log
+	// TODO: write log
+	err = db.AddRecord(append(key, value...))
+	if err != nil {
+		return err
+	}
 
 	db.mem.Add(seq, internalkey.TypeValue, key, value)
 	return nil
@@ -96,10 +105,18 @@ func (db *DB) Get(key []byte) ([]byte, error) {
 }
 
 func (db *DB) Delete(key []byte) error {
+	// May temporarily unlock and wait
 	seq, err := db.makeRoomForWrite()
 	if err != nil {
 		return err
 	}
+
+	// TODO: write log
+	err = db.AddRecord(key)
+	if err != nil {
+		return err
+	}
+
 	db.mem.Add(seq, internalkey.TypeDeletion, key, nil)
 	return nil
 }
@@ -125,10 +142,10 @@ func (db *DB) makeRoomForWrite() (uint64, error) {
 			db.cond.Wait()
 		} else {
 			// Attempt to switch to a new memtable and trigger compaction of old
-			// todo : switch log
 			db.imm = db.mem
 			db.mem = memtable.New()
 			db.maybeScheduleCompaction()
+			// TODO: GC, switch log
 		}
 	}
 	return db.current.NextSeq(), nil

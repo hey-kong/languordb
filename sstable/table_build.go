@@ -46,10 +46,10 @@ func (builder *TableBuilder) Add(internalKey *internalkey.InternalKey) {
 		builder.indexBlockBuilder.Add(builder.pendingIndexHandle.InternalKey)
 		builder.pendingIndexEntry = false
 	}
-	// todo : filter block
+
+	// TODO: filter block
 
 	builder.pendingIndexHandle.InternalKey = internalKey
-
 	builder.numEntries++
 	builder.dataBlockBuilder.Add(internalKey)
 	if builder.dataBlockBuilder.CurrentSizeEstimate() > MaxBlockSize {
@@ -70,7 +70,8 @@ func (builder *TableBuilder) flush() {
 func (builder *TableBuilder) Finish() error {
 	// write data block
 	builder.flush()
-	// todo : filter block
+
+	// TODO: filter block
 
 	// write index block
 	if builder.pendingIndexEntry {

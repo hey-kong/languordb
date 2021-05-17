@@ -10,7 +10,7 @@ import (
 	"github.com/hey-kong/languordb/config"
 	"github.com/hey-kong/languordb/errors"
 	"github.com/hey-kong/languordb/internalkey"
-	"github.com/hey-kong/languordb/utils"
+	"github.com/hey-kong/languordb/util"
 )
 
 type FileMetaData struct {
@@ -61,7 +61,7 @@ type Version struct {
 	nextFileNumber uint64
 	seq            uint64
 	files          [config.NumLevels][]*FileMetaData
-	// For coarse-grain compaction.
+	// For coarse-grain compaction
 	index    [config.NumLevels]*Index
 	rowCache *RowCache
 }
@@ -111,8 +111,8 @@ func (v *Version) DecodeFrom(r io.Reader) error {
 }
 
 func Load(dbName string, number uint64) (*Version, error) {
-	fileName := utils.DescriptorFileName(dbName, number)
-	file, err := os.Open(fileName)
+	descriptorFile := util.DescriptorFileName(dbName, number)
+	file, err := os.Open(descriptorFile)
 	if err != nil {
 		return nil, err
 	}
@@ -122,24 +122,24 @@ func Load(dbName string, number uint64) (*Version, error) {
 }
 
 func (v *Version) Save() (uint64, error) {
-	tmp := v.nextFileNumber
-	fileName := utils.DescriptorFileName(v.tableCache.dbName, v.nextFileNumber)
-	v.nextFileNumber++
-	file, err := os.Create(fileName)
+	number := v.NextFileNum()
+	descriptorFile := util.DescriptorFileName(v.tableCache.dbName, number)
+	file, err := os.Create(descriptorFile)
 	if err != nil {
-		return tmp, err
+		return number, err
 	}
 	defer file.Close()
-	return tmp, v.EncodeTo(file)
+	return number, v.EncodeTo(file)
 }
 
 func (v *Version) Log() {
+	log.Printf("file numbers of %d levels currently:", config.NumLevels)
 	for level := 0; level < config.NumLevels; level++ {
 		numbers := make([]uint64, len(v.files[level]))
 		for i := range numbers {
 			numbers[i] = v.files[level][i].number
 		}
-		log.Printf("level[%d], file number%v", level, numbers)
+		log.Printf("level %d: %v", level, numbers)
 	}
 }
 

@@ -5,8 +5,8 @@ import (
 )
 
 var (
-	ErrNotFound          = errors.New("Not Found")
-	ErrDeletion          = errors.New("Type Deletion")
-	ErrTableFileMagic    = errors.New("not an sstable (bad magic number)")
-	ErrTableFileTooShort = errors.New("file is too short to be an sstable")
+	ErrNotFound          = errors.New("not found")
+	ErrDeletion          = errors.New("found deleted value")
+	ErrTableFileMagic    = errors.New("not a sstable (bad magic number)")
+	ErrTableFileTooShort = errors.New("file is too short to be a sstable")
 )

@@ -6,7 +6,7 @@ import (
 	"github.com/hey-kong/languordb/config"
 	"github.com/hey-kong/languordb/memtable"
 	"github.com/hey-kong/languordb/sstable"
-	"github.com/hey-kong/languordb/utils"
+	"github.com/hey-kong/languordb/util"
 )
 
 // Compaction is initialized before coarse-grain compaction works
@@ -45,21 +45,10 @@ func (v *Version) addFile(level int, meta *FileMetaData) {
 	}
 }
 
-func (c *Compaction) Log() {
-	log.Printf("coarse-grain compaction, level:%d", c.level)
-	for i := range c.inputs {
-		numbers := make([]uint64, len(c.inputs[i].pages))
-		for j := range c.inputs[i].pages {
-			numbers[j] = c.inputs[i].pages[j].number
-		}
-		log.Printf("inputs[%d], file number%v", i, numbers)
-	}
-}
-
 func (v *Version) WriteLevel0Table(imm *memtable.MemTable) {
 	var meta FileMetaData
 	meta.number = v.NextFileNum()
-	builder := sstable.NewTableBuilder(utils.TableFileName(v.tableCache.dbName, meta.number))
+	builder := sstable.NewTableBuilder(util.TableFileName(v.tableCache.dbName, meta.number))
 	iter := imm.NewIterator()
 	iter.SeekToFirst()
 	if iter.Valid() {
@@ -97,7 +86,6 @@ func (v *Version) DoCompactionWork() bool {
 	}
 	log.Printf("DoCompactionWork begin\n")
 	defer log.Printf("DoCompactionWork end\n")
-	c.Log()
 	shard := v.MergeShards(c.inputs)
 	// Update Level-i index
 	for i := range c.inputs {

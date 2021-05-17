@@ -9,7 +9,7 @@ import (
 	"github.com/hey-kong/languordb/config"
 	"github.com/hey-kong/languordb/internalkey"
 	"github.com/hey-kong/languordb/sstable"
-	"github.com/hey-kong/languordb/utils"
+	"github.com/hey-kong/languordb/util"
 )
 
 type Shard struct {
@@ -62,7 +62,7 @@ func (v *Version) MergeShards(shards []*Shard) *Shard {
 		var meta FileMetaData
 		meta.number = v.nextFileNumber
 		v.nextFileNumber++
-		builder := sstable.NewTableBuilder(utils.TableFileName(v.tableCache.dbName, meta.number))
+		builder := sstable.NewTableBuilder(util.TableFileName(v.tableCache.dbName, meta.number))
 
 		meta.smallest = iter.InternalKey()
 		for ; iter.Valid(); iter.Next() {
@@ -101,7 +101,7 @@ func (v *Version) MergeShards(shards []*Shard) *Shard {
 	return &s
 }
 
-func (v *Version) makeShardsIterator(shards []*Shard) ([]*FileMetaData, *MergingIterator) {
+func (v *Version) makeShardsIterator(shards []*Shard) ([]*FileMetaData, *MergedIterator) {
 	var metas []*FileMetaData
 	for i := range shards {
 		metas = append(metas, shards[i].pages...)
@@ -121,7 +121,7 @@ func (v *Version) makeShardsIterator(shards []*Shard) ([]*FileMetaData, *Merging
 			}
 		}
 	}
-	return metas, NewMergingIterator(list)
+	return metas, NewMergedIterator(list)
 }
 
 func makeNotOverlapFileMap(metas []*FileMetaData) map[uint64]bool {

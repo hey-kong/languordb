@@ -1,14 +1,5 @@
 package languordb
 
-import (
-	"fmt"
-	"io/ioutil"
-	"os"
-	"strconv"
-
-	"github.com/hey-kong/languordb/utils"
-)
-
 func (db *DB) maybeScheduleCompaction() {
 	if db.bgCompactionScheduled {
 		return
@@ -42,22 +33,4 @@ func (db *DB) backgroundCompaction() {
 	db.mu.Lock()
 	db.imm = nil
 	db.current = version
-}
-
-func (db *DB) SetCurrentFile(descriptorNumber uint64) {
-	tmp := utils.TempFileName(db.name, descriptorNumber)
-	ioutil.WriteFile(tmp, []byte(fmt.Sprintf("%d", descriptorNumber)), 0600)
-	os.Rename(tmp, utils.CurrentFileName(db.name))
-}
-
-func (db *DB) ReadCurrentFile() uint64 {
-	b, err := ioutil.ReadFile(utils.CurrentFileName(db.name))
-	if err != nil {
-		return 0
-	}
-	descriptorNumber, err := strconv.ParseUint(string(b), 10, 64)
-	if err != nil {
-		return 0
-	}
-	return descriptorNumber
 }

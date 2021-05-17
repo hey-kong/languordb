@@ -12,7 +12,7 @@ type Iterator struct {
 	indexIter       *block.Iterator
 }
 
-// Returns true if the iterator is positioned at a valid node.
+// Return true if the iterator is on a valid node
 func (it *Iterator) Valid() bool {
 	return it.dataIter != nil && it.dataIter.Valid()
 }
@@ -29,14 +29,14 @@ func (it *Iterator) Value() []byte {
 	return it.InternalKey().UserValue
 }
 
-// Advances to the next position.
+// Advance to the next position
 // REQUIRES: Valid()
 func (it *Iterator) Next() {
 	it.dataIter.Next()
 	it.skipEmptyDataBlocksForward()
 }
 
-// Advances to the previous position.
+// Advance to the previous position
 // REQUIRES: Valid()
 func (it *Iterator) Prev() {
 	it.dataIter.Prev()
@@ -55,8 +55,8 @@ func (it *Iterator) Seek(target []byte) {
 	it.skipEmptyDataBlocksForward()
 }
 
-// Position at the first entry in list.
-// Final state of iterator is Valid() if the list is not empty.
+// Position at the first entry in list
+// Final state of iterator is Valid() if the list is not empty
 func (it *Iterator) SeekToFirst() {
 	it.indexIter.SeekToFirst()
 	it.initDataBlock()
@@ -66,8 +66,8 @@ func (it *Iterator) SeekToFirst() {
 	it.skipEmptyDataBlocksForward()
 }
 
-// Position at the last entry in list.
-// Final state of iterator is Valid() if the list is not empty.
+// Position at the last entry in list
+// Final state of iterator is Valid() if the list is not empty
 func (it *Iterator) SeekToLast() {
 	it.indexIter.SeekToLast()
 	it.initDataBlock()

@@ -43,7 +43,6 @@ func min(a, b int32) int32 {
 }
 
 func TestInsertAndLookup(t *testing.T) {
-
 	fmt.Println("Test: insert and lookup")
 
 	const (

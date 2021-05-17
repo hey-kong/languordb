@@ -3,10 +3,10 @@ package languordb
 import (
 	"sync"
 
-	"github.com/hashicorp/golang-lru"
+	lru "github.com/hashicorp/golang-lru"
 	"github.com/hey-kong/languordb/config"
 	"github.com/hey-kong/languordb/sstable"
-	"github.com/hey-kong/languordb/utils"
+	"github.com/hey-kong/languordb/util"
 )
 
 type TableCache struct {
@@ -49,7 +49,7 @@ func (tableCache *TableCache) findTable(fileNum uint64) (*sstable.SSTable, error
 	if ok {
 		return table.(*sstable.SSTable), nil
 	} else {
-		ssTable, err := sstable.Open(utils.TableFileName(tableCache.dbName, fileNum))
+		ssTable, err := sstable.Open(util.TableFileName(tableCache.dbName, fileNum))
 		tableCache.cache.Add(fileNum, ssTable)
 		return ssTable, err
 	}

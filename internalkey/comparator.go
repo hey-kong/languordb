@@ -11,11 +11,9 @@ func InternalKeyComparator(a, b interface{}) int {
 	bKey := b.(*InternalKey)
 	if aKey == nil && bKey == nil {
 		return 0
-	}
-	if aKey == nil {
+	} else if aKey == nil {
 		return -1
-	}
-	if bKey == nil {
+	} else if bKey == nil {
 		return 1
 	}
 	r := UserKeyComparator(aKey.UserKey, bKey.UserKey)

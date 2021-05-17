@@ -19,6 +19,14 @@ func TestBlock(t *testing.T) {
 	block := New(p)
 
 	it := block.NewIterator()
+	it.Seek([]byte("222"))
+	if it.Valid() {
+		if string(it.InternalKey().UserValue) != "bbb" {
+			t.Fail()
+		}
+	} else {
+		t.Fail()
+	}
 	it.Seek([]byte("2222"))
 	if it.Valid() {
 		if string(it.InternalKey().UserKey) != "333" {
